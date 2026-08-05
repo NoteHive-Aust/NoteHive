@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 Widget bottomNavigation(){
+  int selectedIndex=0;
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10,),
+    //padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10,),
     width: 320,
     height: 60,
     margin: EdgeInsets.only(bottom: 25),
@@ -13,11 +14,11 @@ Widget bottomNavigation(){
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        iconBtn(icon: Icons.home_outlined,method: (){}),
-        iconBtn(icon: Icons.explore_outlined,method: (){}),
+        iconBtn(icon: Icons.home_outlined,method: (){},isSelected: selectedIndex==0),
+        iconBtn(icon: Icons.explore_outlined,method: (){},isSelected: selectedIndex==1),
         IconButton(
             onPressed: (){
-              print("Hello");
+             //upload
             },
             icon: Icon(Icons.add,),
             iconSize: 24,
@@ -26,24 +27,37 @@ Widget bottomNavigation(){
                 foregroundColor: Colors.white
             )
         ),
-        iconBtn(icon: Icons.person_outline,method: (){
-          print("object");
-        }),
-        iconBtn(icon: Icons.settings_outlined,method: (){}),
+        iconBtn(icon: Icons.person_outline,method: (){},isSelected: selectedIndex==3),
+        iconBtn(icon: Icons.settings_outlined,method: (){},isSelected: selectedIndex==4),
 
 
       ],
     ),
   );
 }
-Widget iconBtn({IconData? icon,VoidCallback? method}){
-  return IconButton(
-      iconSize: 24,
-      onPressed: method,
-      icon: Icon(icon),
-      style: IconButton.styleFrom(
-        //backgroundColor: Color(0xFF8474F0),
-          foregroundColor: Color(0xFFE6E3FC)
-      )
+Widget iconBtn({ required IconData? icon, required VoidCallback? method,required bool isSelected}){
+  return GestureDetector(
+    onTap: method,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children:[ Icon(
+          icon,
+          size: 28,
+          color: Color(0xFFE6E3FC),
+      ),
+        SizedBox(height: 2),
+      AnimatedOpacity(opacity: isSelected? 1:0
+        , duration: Duration(microseconds: 200),
+        child: Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(
+          color: Colors.deepPurple,
+          shape: BoxShape.circle,
+        )
+      ),)
+      ]
+    ),
   );
 }
