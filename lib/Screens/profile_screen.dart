@@ -319,8 +319,6 @@ class _profileScreenState extends State<profileScreen> {
             ),
           ),
           SizedBox(width: 10),
-
-          // Title & subtitle
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,8 +342,6 @@ class _profileScreenState extends State<profileScreen> {
               ],
             ),
           ),
-
-          // Chevron arrow
           Icon(
             Icons.chevron_right,
             size: 24,
