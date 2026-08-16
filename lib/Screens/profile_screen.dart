@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottomNavigation.dart';
 
-class profileScreen extends StatefulWidget {
-  const profileScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<profileScreen> createState() => _profileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _profileScreenState extends State<profileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -250,7 +250,8 @@ class _profileScreenState extends State<profileScreen> {
   Widget joinedRoomCard({required String roomName, required int members}) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      height: 70,
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         border: Border.all(
           color: Color(0xFF352E60).withOpacity(0.1),
@@ -295,6 +296,7 @@ class _profileScreenState extends State<profileScreen> {
   Widget myUploadsCard({required String title, required String subtitle}) {
     return Container(
       width: double.infinity,
+      height: 70,
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         border: Border.all(
