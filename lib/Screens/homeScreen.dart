@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
 
 class Homescreen extends StatefulWidget {
@@ -34,7 +35,12 @@ class _HomescreenState extends State<Homescreen> {
                   child: ListView.builder(
                     itemCount: 20,
                     itemBuilder: (context, item) {
-                      return listItemCard(roomName: 'Box er Class', universityName: 'AUST University', members: 102, resources: 20, isPrivate: false, method: () {  });
+                      return listItemCard(roomName: 'Box er Class',
+                          universityName: 'AUST University',
+                          members: 102,
+                          resources: 20,
+                          isPrivate: false,
+                          method: () {});
                     },
                   ),
                 ),
@@ -54,7 +60,7 @@ class _HomescreenState extends State<Homescreen> {
     required int resources,
     required bool isPrivate,
     required VoidCallback method,
-}) {
+  }) {
     return Card(
       color: Colors.white,
       elevation: 0,
@@ -124,9 +130,12 @@ class _HomescreenState extends State<Homescreen> {
                   ),
                   child: Row(
                     children: [
-                      isPrivate?Icon(Icons.lock_outline_rounded, size: 12):Icon(Icons.lock_open_rounded, size: 12),
+                      isPrivate
+                          ? Icon(Icons.lock_outline_rounded, size: 12)
+                          : Icon(Icons.lock_open_rounded, size: 12),
                       SizedBox(width: 2),
-                      Text(" ${isPrivate?"Private":"Public"}", style: TextStyle(fontSize: 11)),
+                      Text(" ${isPrivate ? "Private" : "Public"}",
+                          style: TextStyle(fontSize: 11)),
                     ],
                   ),
                 ),
@@ -178,16 +187,9 @@ class _HomescreenState extends State<Homescreen> {
           ),
         ),
         SizedBox(width: 10),
-        IconButton.outlined(
-          iconSize: 30,
-          onPressed: () {},
-          icon: Icon(Icons.notifications_none),
-          style: IconButton.styleFrom(
-            foregroundColor: Color(0xFF1A1730),
-            //backgroundColor: Colors.white,
-          ),
-        ),
+        NotificationButtonForAppBar(),
       ],
     );
   }
+
 }
