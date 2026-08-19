@@ -15,94 +15,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: appBar(),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: 100, left: 20, right: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(width: double.infinity),
-                  SizedBox(height: 56),
-                  CircleAvatar(radius: 60, child: Icon(Icons.person, size: 80)),
-                  SizedBox(height: 20),
-                  Text(
-                    'Student Name',
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1730),
-                    ),
-                  ),
-                  SizedBox(height: 3),
-                  Text(
-                    'Ahsanullah University of Science & Technology',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF352E60).withOpacity(0.6),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  infoCard(
-                    email: 'student@gmail.com',
-                    totalUploads: '34',
-                    repPoints: '1,200',
-                    rooms: '4',
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  titleMaker(
-                    label: 'Joined Rooms'
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: 3,
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 10);
-                    },
-                    itemBuilder: (context, index) {
-                      return JoinedRoomCard(
-                        roomName: 'Box er Class',
-                        members: 130,
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  titleMaker(
-                    label: 'My Uploads',
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: 3,
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 10);
-                    },
-                    itemBuilder: (context, index) {
-                      return MyUploadsCard(
-                        title: 'DS Question Bank',
-                        subtitle: 'CSE 2103. Fall2025. Question Bank',
-                      );
-                    },
-                  ),
-                ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 100, left: 20, right: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(width: double.infinity),
+              SizedBox(height: 56),
+              CircleAvatar(radius: 60, child: Icon(Icons.person, size: 80)),
+              SizedBox(height: 20),
+              Text(
+                'Student Name',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1730),
+                ),
               ),
-            ),
+              SizedBox(height: 3),
+              Text(
+                'Ahsanullah University of Science & Technology',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF352E60).withOpacity(0.6),
+                ),
+              ),
+              SizedBox(height: 20),
+              infoCard(
+                email: 'student@gmail.com',
+                totalUploads: '34',
+                repPoints: '1,200',
+                rooms: '4',
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              titleMaker(
+                label: 'Joined Rooms'
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: 3,
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 10);
+                },
+                itemBuilder: (context, index) {
+                  return JoinedRoomCard(
+                    roomName: 'Box er Class',
+                    members: 130,
+                  );
+                },
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              titleMaker(
+                label: 'My Uploads',
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: 3,
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 10);
+                },
+                itemBuilder: (context, index) {
+                  return MyUploadsCard(
+                    title: 'DS Question Bank',
+                    subtitle: 'CSE 2103. Fall2025. Question Bank',
+                  );
+                },
+              ),
+            ],
           ),
-          Align(alignment: Alignment.bottomCenter, child: bottomNavigation())
-        ],
+        ),
       ),
     );
   }
