@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
+import '../widgets/searchBox.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -13,6 +14,7 @@ class SettingScreen extends StatefulWidget {
 
 class _SettingScreenState extends State<SettingScreen> {
   bool pushNotification = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +34,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
 
                   children: [
-                    SearchBarForSettings(),
+                    SearchBox(lebel: "Search for Settings"),
                     //SizedBox(height: 20,),
                     ProfileEditTab(),
                     PushNotificationToggle(),
@@ -62,39 +64,40 @@ class _SettingScreenState extends State<SettingScreen> {
     );
   }
 
+
   Container Emnei() {
     return Container(
-                    padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.only(top: 20),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Color(0xFF352E60).withOpacity(0.1),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Tiles(
-                          icon: Icons.question_mark_outlined,
-                          title: "Help & FAQ",
-                          tail: '',
-                        ),
-                        Divider(),
-                        Tiles(
-                          icon: Icons.phone_android_rounded,
-                          title: "App Version",
-                          tail: '',
-                        ),
-                        Divider(),
-                        Tiles(
-                          icon: Icons.insert_drive_file_outlined,
-                          title: "Terms & Condition",
-                          tail: '',
-                        ),
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Color(0xFF352E60).withOpacity(0.1),
+        ),
+      ),
+      child: Column(
+        children: [
+          Tiles(
+            icon: Icons.question_mark_outlined,
+            title: "Help & FAQ",
+            tail: '',
+          ),
+          Divider(),
+          Tiles(
+            icon: Icons.phone_android_rounded,
+            title: "App Version",
+            tail: '',
+          ),
+          Divider(),
+          Tiles(
+            icon: Icons.insert_drive_file_outlined,
+            title: "Terms & Condition",
+            tail: '',
+          ),
 
-                      ],
-                    ),
-                  );
+        ],
+      ),
+    );
   }
 
   Container SignoutDeleteTab() {
@@ -255,7 +258,7 @@ class _SettingScreenState extends State<SettingScreen> {
           inactiveTrackColor: Color(0xff8474F0).withOpacity(0.01),
           inactiveThumbColor: Colors.black12,
           trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
-            (states) => Color(0xFF352E60).withOpacity(0.1),
+                (states) => Color(0xFF352E60).withOpacity(0.1),
           ),
           value: pushNotification,
           onChanged: (bool toggleSwicth) {
@@ -291,24 +294,4 @@ class _SettingScreenState extends State<SettingScreen> {
     );
   }
 
-  Container SearchBarForSettings() {
-    return Container(
-      height: 55,
-      margin: EdgeInsets.symmetric(vertical: 20),
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        color: Color(0xff352E60).withOpacity(0.05),
-      ),
-      child: TextField(
-        maxLines: 1,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-
-          icon: Icon(Icons.search),
-          hintText: "Search for Settings",
-        ),
-      ),
-    );
-  }
 }
