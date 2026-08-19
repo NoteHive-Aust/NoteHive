@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottomNavigation.dart';
+import '../widgets/cards.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,93 +15,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: appBar(),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: 100, left: 20, right: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(width: double.infinity),
-                  SizedBox(height: 56),
-                  CircleAvatar(radius: 60, child: Icon(Icons.person, size: 80)),
-                  SizedBox(height: 20),
-                  Text(
-                    'Student Name',
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1730),
-                    ),
-                  ),
-                  SizedBox(height: 3),
-                  Text(
-                    'Ahsanullah University of Science & Technology',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF352E60).withOpacity(0.6),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  infoCard(
-                    email: 'student@gmail.com',
-                    totalUploads: '34',
-                    repPoints: '1,200',
-                    rooms: '4',
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  titleMaker(
-                    label: 'Joined Rooms'
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  joinedRoomCard(roomName: 'Box er Class', members: 130),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  joinedRoomCard(roomName: 'Box er Class', members: 130),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  joinedRoomCard(roomName: 'Box er Class', members: 130),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  titleMaker(
-                    label: 'My Uploads',
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  myUploadsCard(
-                    title: 'DS Question Bank',
-                    subtitle: 'CSE 2103. Fall2025. Question Bank'
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  myUploadsCard(
-                      title: 'DS Question Bank',
-                      subtitle: 'CSE 2103. Fall2025. Question Bank'
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  myUploadsCard(
-                      title: 'DS Question Bank',
-                      subtitle: 'CSE 2103. Fall2025. Question Bank'
-                  ),
-                ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 100, left: 20, right: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(width: double.infinity),
+              SizedBox(height: 56),
+              CircleAvatar(radius: 60, child: Icon(Icons.person, size: 80)),
+              SizedBox(height: 20),
+              Text(
+                'Student Name',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1730),
+                ),
               ),
-            ),
+              SizedBox(height: 3),
+              Text(
+                'Ahsanullah University of Science & Technology',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF352E60).withOpacity(0.6),
+                ),
+              ),
+              SizedBox(height: 20),
+              infoCard(
+                email: 'student@gmail.com',
+                totalUploads: '34',
+                repPoints: '1,200',
+                rooms: '4',
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              titleMaker(
+                label: 'Joined Rooms'
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: 3,
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 10);
+                },
+                itemBuilder: (context, index) {
+                  return JoinedRoomCard(
+                    roomName: 'Box er Class',
+                    members: 130,
+                  );
+                },
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              titleMaker(
+                label: 'My Uploads',
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: 3,
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 10);
+                },
+                itemBuilder: (context, index) {
+                  return MyUploadsCard(
+                    title: 'DS Question Bank',
+                    subtitle: 'CSE 2103. Fall2025. Question Bank',
+                  );
+                },
+              ),
+            ],
           ),
-          Align(alignment: Alignment.bottomCenter, child: bottomNavigation())
-        ],
+        ),
       ),
     );
   }
@@ -247,110 +244,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget joinedRoomCard({required String roomName, required int members}) {
-    return Container(
-      width: double.infinity,
-      height: 70,
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Color(0xFF352E60).withOpacity(0.1),
-        ),
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            roomName,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A1730),
-            ),
-          ),
-          SizedBox(height: 6),
-          Row(
-            children: [
-              Icon(
-                Icons.people_outline,
-                size: 16,
-                color: Color(0xFF352E60).withOpacity(0.6),
-              ),
-              SizedBox(width: 4),
-              Text(
-                "$members Members",
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF352E60).withOpacity(0.6),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget myUploadsCard({required String title, required String subtitle}) {
-    return Container(
-      width: double.infinity,
-      height: 70,
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Color(0xFF352E60).withOpacity(0.1),
-        ),
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Color(0xFFE6E3FC).withOpacity(0.6),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.description_outlined,
-              size: 20,
-              color: Color(0xFF352E60),
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1730),
-                  ),
-                ),
-                SizedBox(height: 3),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF352E60).withOpacity(0.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            size: 24,
-            color: Color(0xFF1A1730),
-          ),
-        ],
-      ),
-    );
-  }
 }

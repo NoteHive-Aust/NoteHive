@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
 import '../widgets/cards.dart';
 
-class MyUploads extends StatefulWidget {
-  const MyUploads({super.key});
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
 
   @override
-  State<MyUploads> createState() => _MyUploadsState();
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _MyUploadsState extends State<MyUploads> {
+class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: appBar(),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView.separated(
           padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
           itemCount: 10,
           separatorBuilder: (context, index) {
-            return SizedBox(height: 10);
+            return Divider(
+              height: 1,
+              thickness: 1,
+              indent: 18,
+              endIndent: 18,
+              color: Color(0xFF352E60).withOpacity(0.08),
+            );
           },
           itemBuilder: (context, index) {
-            return MyUploadsCard(
-              title: 'DS Question Bank',
-              subtitle: 'CSE 2103. Fall2025. Question Bank',
-            );
+            return NotificationsCard(title: 'Mid term timetable has just been posted. Check the announcements.',
+            subtitle: 'CSE 2103', time: '1h ago');
           },
         ),
       ),
@@ -50,7 +54,7 @@ class _MyUploadsState extends State<MyUploads> {
         ),
       ),
       title: Text(
-        'My Uploads',
+        'Notifications',
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w500,
@@ -59,5 +63,4 @@ class _MyUploadsState extends State<MyUploads> {
       ),
     );
   }
-
 }
