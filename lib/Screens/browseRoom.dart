@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/searchBox.dart';
-import 'package:notehive/widgets/searchBox.dart';
 
 class Browseroom extends StatefulWidget {
   const Browseroom({super.key});
@@ -14,7 +13,7 @@ class _BrowseroomState extends State<Browseroom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Appbar(),
+      appBar: appbar(),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -84,11 +83,6 @@ class _BrowseroomState extends State<Browseroom> {
 
                       trailing: OutlinedButton(
                         onPressed: () {},
-                        child: Text(
-                          "Join",
-                          style: TextStyle(fontSize: 12),
-                          overflow: TextOverflow.ellipsis,
-                        ),
                         style: OutlinedButton.styleFrom(
                           overlayColor: Color(0xff8474F0),
                           side: BorderSide(
@@ -96,6 +90,11 @@ class _BrowseroomState extends State<Browseroom> {
                           ),
                           visualDensity: VisualDensity.compact,
                           // fixedSize: Size(75,25)
+                        ),
+                        child: Text(
+                          "Join",
+                          style: TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       style: ListTileStyle.drawer,
@@ -114,7 +113,7 @@ class _BrowseroomState extends State<Browseroom> {
     );
   }
 
-  AppBar Appbar() {
+  AppBar appbar() {
     return AppBar(
       leadingWidth: 60,
       leading: Container(
