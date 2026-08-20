@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notehive/Screens/signup.dart';
+// import 'package:notehive/Screens/signup.dart';
 import 'package:notehive/Screens/login.dart';
 
 
@@ -24,7 +24,7 @@ class StartingScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 0),
                   child: Image.asset(
-                    'assets/logo.png',
+                    'assets/Logo.png',
                     width: 105,
                     height: 30,
                     fit: BoxFit.contain,
@@ -113,12 +113,12 @@ class StartingScreen extends StatelessWidget {
                   height: 35,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SignupScreen(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const SignupScreen(),
+                      //   ),
+                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF7F5FD),
