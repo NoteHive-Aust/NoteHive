@@ -64,7 +64,7 @@ flutter:
      - assets/mdi_github.png
      - assets/material-icon-theme_google.png
      - assets/loginscreen_background.png
-
+     - assets/Illustration.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
