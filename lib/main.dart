@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/startingScreen.dart';
+
+import 'Screens/pageController.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,7 +33,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'NoteHive'),
+      home: StartingScreen(),
     );
   }
 }

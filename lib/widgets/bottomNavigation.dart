@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-Widget bottomNavigation(){
-  int selectedIndex=0;
+Widget bottomNavigation({required int selectedIndex,
+  required ValueChanged<int> onItemSelected,}){
   return Container(
     //padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10,),
     width: 320,
@@ -14,11 +14,16 @@ Widget bottomNavigation(){
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        iconBtn(icon: Icons.home_outlined,method: (){},isSelected: selectedIndex==0),
-        iconBtn(icon: Icons.explore_outlined,method: (){},isSelected: selectedIndex==1),
+        iconBtn(icon: Icons.home_outlined,method: (){
+          onItemSelected(0);
+
+        },isSelected: selectedIndex == 0),
+        iconBtn(icon: Icons.explore_outlined,method: (){
+          onItemSelected(1);
+        },isSelected: selectedIndex==1),
         IconButton(
             onPressed: (){
-             //upload
+
             },
             icon: Icon(Icons.add,),
             iconSize: 24,
@@ -27,8 +32,12 @@ Widget bottomNavigation(){
                 foregroundColor: Colors.white
             )
         ),
-        iconBtn(icon: Icons.person_outline,method: (){},isSelected: selectedIndex==3),
-        iconBtn(icon: Icons.settings_outlined,method: (){},isSelected: selectedIndex==4),
+        iconBtn(icon: Icons.person_outline,method: (){
+          onItemSelected(2);
+        },isSelected: selectedIndex==2),
+        iconBtn(icon: Icons.settings_outlined,method: (){
+          onItemSelected(3);
+        },isSelected: selectedIndex==3),
 
 
       ],
@@ -48,7 +57,7 @@ Widget iconBtn({ required IconData? icon, required VoidCallback? method,required
       ),
         SizedBox(height: 2),
       AnimatedOpacity(opacity: isSelected? 1:0
-        , duration: Duration(microseconds: 200),
+        , duration: Duration(milliseconds: 200),
         child: Container(
         width: 6,
         height: 6,

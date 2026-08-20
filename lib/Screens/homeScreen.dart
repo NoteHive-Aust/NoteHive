@@ -15,40 +15,35 @@ class _HomescreenState extends State<Homescreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: Appbar(),
-      body: Stack(
-        children: [
-          Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: 50),
-                Text(
-                  "My Rooms",
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1730),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: 20,
-                    itemBuilder: (context, item) {
-                      return listItemCard(roomName: 'Box er Class',
-                          universityName: 'AUST University',
-                          members: 102,
-                          resources: 20,
-                          isPrivate: false,
-                          method: () {});
-                    },
-                  ),
-                ),
-              ],
+      body: Padding(
+        padding: EdgeInsetsGeometry.symmetric(horizontal: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: 50),
+            Text(
+              "My Rooms",
+              style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1A1730),
+              ),
             ),
-          ),
-          Align(alignment: Alignment.bottomCenter, child: bottomNavigation()),
-        ],
+            Expanded(
+              child: ListView.builder(
+                itemCount: 20,
+                itemBuilder: (context, item) {
+                  return listItemCard(roomName: 'Box er Class',
+                      universityName: 'AUST University',
+                      members: 102,
+                      resources: 20,
+                      isPrivate: false,
+                      method: () {});
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -187,7 +182,7 @@ class _HomescreenState extends State<Homescreen> {
           ),
         ),
         SizedBox(width: 10),
-        NotificationButtonForAppBar(),
+        NotificationButtonForAppBar(context: context),
       ],
     );
   }

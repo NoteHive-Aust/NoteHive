@@ -142,7 +142,7 @@ class _BrowseroomState extends State<Browseroom> {
         ],
       ),
       actionsPadding: EdgeInsets.only(right: 20),
-      actions: [NotificationButtonForAppBar()],
+      actions: [NotificationButtonForAppBar(context: context)],
     );
   }
 }

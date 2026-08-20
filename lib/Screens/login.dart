@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/homeScreen.dart';
+import 'package:notehive/Screens/pageController.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -72,7 +73,7 @@ Widget _buildLogo() {
       ClipRRect(
         borderRadius: BorderRadius.circular(10.0),
         child: Image.asset(
-          'assets/logo.png',
+          'assets/Logo.png',
           width: 125,
           height: 28,
           fit: BoxFit.contain,
@@ -195,7 +196,7 @@ Widget _buildSignInButton(BuildContext context) {
         // Handle sign in logic
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const Homescreen()),
+          MaterialPageRoute(builder: (context) => Pagecontroller()),
         );
       },
       style: ElevatedButton.styleFrom(
