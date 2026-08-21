@@ -35,7 +35,7 @@ class _HomescreenState extends State<Homescreen> {
                 itemBuilder: (context, item) {
                   return listItemCard(roomName: 'Box er Class',
                       universityName: 'AUST University',
-                      members: 102,
+                      members: 118,
                       resources: 20,
                       isPrivate: false,
                       method: () {});
@@ -65,21 +65,15 @@ class _HomescreenState extends State<Homescreen> {
       ),
       child: ListTile(
         onTap: method,
-        splashColor: Color(0xFFE6E3FC).withOpacity(0.7),
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+
         //tileColor: Colors.white,
         title: Text(
           roomName,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1A1730),
-          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(universityName, style: TextStyle(fontSize: 14)),
+            Text(universityName,),
             SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -91,11 +85,11 @@ class _HomescreenState extends State<Homescreen> {
                     Text(
                       members.toString(),
                       style: TextStyle(
-                        fontSize: 12,
+                        //ontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(" Members", style: TextStyle(fontSize: 12)),
+                    Text(" Members",),
                   ],
                 ),
                 SizedBox(width: 10),

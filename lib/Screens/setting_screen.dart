@@ -105,6 +105,7 @@ class _SettingScreenState extends State<SettingScreen> {
             splashColor: Color(0xff9689F2).withOpacity(0.2),
             onTap: () {},
             child: ListTile(
+              contentPadding: EdgeInsets.all(0),
               leading: Icon(Icons.delete_outline_rounded, color: Colors.red),
               title: Text(
                 "Delete Account",
@@ -195,9 +196,9 @@ class _SettingScreenState extends State<SettingScreen> {
     required String tail,
   }) {
     return InkWell(
-      splashColor: Color(0xff9689F2).withOpacity(0.2),
       onTap: () {},
       child: ListTile(
+        contentPadding: EdgeInsets.all(0),
         leading: Icon(icon),
         title: Text("$title", style: TextStyle(fontSize: 14)),
         trailing: Container(
@@ -211,10 +212,6 @@ class _SettingScreenState extends State<SettingScreen> {
             children: [
               Text(
                 tail,
-                style: TextStyle(
-                  color: Color(0xff352E60).withOpacity(0.6),
-                  fontSize: 12,
-                ),
                 overflow: TextOverflow.ellipsis,
               ),
               Icon(
@@ -238,8 +235,9 @@ class _SettingScreenState extends State<SettingScreen> {
         border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: ListTile(
+        contentPadding: EdgeInsets.all(0),
         leading: Icon(Icons.notifications_none),
-        title: Text("Push Notification"),
+        title: Text("Push Notification",style: TextStyle(fontSize: 14)),
         trailing: Switch.adaptive(
           // activeColor: Color(0xff8474F0),
           activeThumbColor: Colors.white,
@@ -268,16 +266,13 @@ class _SettingScreenState extends State<SettingScreen> {
         border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: ListTile(
+        contentPadding: EdgeInsets.all(0),
         leading: CircleAvatar(foregroundImage: AssetImage('assets/image.jpg')),
         title: Text("Student Name"),
         subtitle: Text("University Name"),
         trailing: OutlinedButton(
           onPressed: () {},
           child: Text("Edit", style: TextStyle(fontSize: 12)),
-          style: OutlinedButton.styleFrom(
-            padding: EdgeInsets.all(0),
-            side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
-          ),
         ),
       ),
     );
