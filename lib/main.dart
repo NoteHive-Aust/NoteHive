@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
 
             fontSize: 24,
             color: Color(0xff1A1730),
-            fontFamily: 'Heading',
+            fontFamily: 'heading',
           ),
           subtitleTextStyle: TextStyle(
             height: 2,
