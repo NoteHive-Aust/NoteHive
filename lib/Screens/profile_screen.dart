@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/notifications_screen.dart';
 import '../widgets/bottomNavigation.dart';
 import '../widgets/cards.dart';
 
@@ -108,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       leadingWidth: 150,
       leading: Padding(
         padding: const EdgeInsets.only(left: 20),
-        child: Image.asset('assets/logo.png'),
+        child: Image.asset('assets/Logo.png'),
       ),
       actionsPadding: EdgeInsets.only(right: 20),
       actions: [
@@ -124,7 +125,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(width: 10),
         IconButton.outlined(
           iconSize: 30,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NotificationsScreen()),
+            );
+          },
           icon: Icon(Icons.notifications_none),
           style: IconButton.styleFrom(
             foregroundColor: Color(0xFF1A1730),

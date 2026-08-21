@@ -20,50 +20,42 @@ class _SettingScreenState extends State<SettingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Settings", style: TextStyle(fontWeight: FontWeight.bold)),
-
+        automaticallyImplyLeading: false,
         actionsPadding: EdgeInsets.only(right: 20),
-        actions: [NotificationButtonForAppBar()],
+        actions: [NotificationButtonForAppBar(context: context)],
       ),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
 
-                  children: [
-                    SearchBox(lebel: "Search for Settings"),
-                    //SizedBox(height: 20,),
-                    ProfileEditTab(),
-                    PushNotificationToggle(),
-                    SizedBox(height: 20),
-                    Text("Account", style: TextStyle(color: Color(0xff352E60))),
-                    AccountSettingsTab(),
-                    SizedBox(height: 20),
-                    Text(
-                      "Appearance",
-                      style: TextStyle(color: Color(0xff352E60)),
-                    ),
-                    ApearanceSettingsTab(),
-                    //SizedBox(height: 20,),
-                    SignoutDeleteTab(),
-                    Emnei(),
-                    SizedBox(
-                      height: 80,
-                    )
-                  ],
+              children: [
+                SearchBox(lebel: "Search for Settings"),
+                //SizedBox(height: 20,),
+                ProfileEditTab(),
+                PushNotificationToggle(),
+                SizedBox(height: 20),
+                Text("Account", style: TextStyle(color: Color(0xff352E60))),
+                AccountSettingsTab(),
+                SizedBox(height: 20),
+                Text(
+                  "Appearance",
+                  style: TextStyle(color: Color(0xff352E60)),
                 ),
-              ),
+                ApearanceSettingsTab(),
+                //SizedBox(height: 20,),
+                SignoutDeleteTab(),
+                Emnei(),
+                SizedBox(height: 80),
+              ],
             ),
           ),
-          Align(alignment: Alignment.bottomCenter, child: bottomNavigation()),
-        ],
+        ),
       ),
     );
   }
-
 
   Container Emnei() {
     return Container(
@@ -71,9 +63,7 @@ class _SettingScreenState extends State<SettingScreen> {
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Color(0xFF352E60).withOpacity(0.1),
-        ),
+        border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: Column(
         children: [
@@ -94,7 +84,6 @@ class _SettingScreenState extends State<SettingScreen> {
             title: "Terms & Condition",
             tail: '',
           ),
-
         ],
       ),
     );
@@ -116,6 +105,7 @@ class _SettingScreenState extends State<SettingScreen> {
             splashColor: Color(0xff9689F2).withOpacity(0.2),
             onTap: () {},
             child: ListTile(
+              contentPadding: EdgeInsets.all(0),
               leading: Icon(Icons.delete_outline_rounded, color: Colors.red),
               title: Text(
                 "Delete Account",
@@ -206,9 +196,9 @@ class _SettingScreenState extends State<SettingScreen> {
     required String tail,
   }) {
     return InkWell(
-      splashColor: Color(0xff9689F2).withOpacity(0.2),
       onTap: () {},
       child: ListTile(
+        contentPadding: EdgeInsets.all(0),
         leading: Icon(icon),
         title: Text("$title", style: TextStyle(fontSize: 14)),
         trailing: Container(
@@ -222,10 +212,6 @@ class _SettingScreenState extends State<SettingScreen> {
             children: [
               Text(
                 tail,
-                style: TextStyle(
-                  color: Color(0xff352E60).withOpacity(0.6),
-                  fontSize: 12,
-                ),
                 overflow: TextOverflow.ellipsis,
               ),
               Icon(
@@ -249,8 +235,9 @@ class _SettingScreenState extends State<SettingScreen> {
         border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: ListTile(
+        contentPadding: EdgeInsets.all(0),
         leading: Icon(Icons.notifications_none),
-        title: Text("Push Notification"),
+        title: Text("Push Notification",style: TextStyle(fontSize: 14)),
         trailing: Switch.adaptive(
           // activeColor: Color(0xff8474F0),
           activeThumbColor: Colors.white,
@@ -258,7 +245,7 @@ class _SettingScreenState extends State<SettingScreen> {
           inactiveTrackColor: Color(0xff8474F0).withOpacity(0.01),
           inactiveThumbColor: Colors.black12,
           trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
-                (states) => Color(0xFF352E60).withOpacity(0.1),
+            (states) => Color(0xFF352E60).withOpacity(0.1),
           ),
           value: pushNotification,
           onChanged: (bool toggleSwicth) {
@@ -279,19 +266,15 @@ class _SettingScreenState extends State<SettingScreen> {
         border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: ListTile(
+        contentPadding: EdgeInsets.all(0),
         leading: CircleAvatar(foregroundImage: AssetImage('assets/image.jpg')),
         title: Text("Student Name"),
         subtitle: Text("University Name"),
         trailing: OutlinedButton(
           onPressed: () {},
           child: Text("Edit", style: TextStyle(fontSize: 12)),
-          style: OutlinedButton.styleFrom(
-            padding: EdgeInsets.all(0),
-            side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
-          ),
         ),
       ),
     );
   }
-
 }

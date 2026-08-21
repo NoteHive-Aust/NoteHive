@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/startingScreen.dart';
+
+import 'Screens/pageController.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,24 +16,36 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'NoteHive',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: 'heading',
+        splashColor: Color(0xFFE6E3FC).withOpacity(0.7),
+        colorScheme: .fromSeed(seedColor: Color(0xff8474F0)),
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(backgroundColor: Colors.white),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
+            visualDensity: VisualDensity.compact,
+          ),
+        ),
+        listTileTheme: ListTileThemeData(
+          titleTextStyle: TextStyle(
+
+            fontSize: 24,
+            color: Color(0xff1A1730),
+            fontFamily: 'Heading',
+          ),
+          subtitleTextStyle: TextStyle(
+            height: 2,
+            fontFamily: 'paragraph',
+            fontSize: 14,
+            color: Color(0xff352E60).withOpacity(0.6),
+          ),
+          visualDensity: VisualDensity.compact,
+          //splashColor: Color(0xFFE6E3FC).withOpacity(0.7),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        ),
       ),
-      home: const MyHomePage(title: 'NoteHive'),
+      home: StartingScreen(),
     );
   }
 }
