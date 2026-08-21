@@ -25,6 +25,7 @@ class _MyUploadsState extends State<MyUploads> {
             return MyUploadsCard(
               title: 'DS Question Bank',
               subtitle: 'CSE 2103. Fall2025. Question Bank',
+              method: () {},
             );
           },
         ),

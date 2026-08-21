@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 class JoinedRoomCard extends StatelessWidget {
   final String roomName;
   final int members;
+  final VoidCallback method;
 
   const JoinedRoomCard({
     super.key,
     required this.roomName,
     required this.members,
+    required this.method,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: method,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
@@ -52,12 +55,14 @@ class JoinedRoomCard extends StatelessWidget {
 class MyUploadsCard extends StatelessWidget {
   final String title;
   final String subtitle;
+  final VoidCallback method;
 
-  const MyUploadsCard({super.key, required this.title, required this.subtitle});
+  const MyUploadsCard({super.key, required this.title, required this.subtitle, required this.method});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: method,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
