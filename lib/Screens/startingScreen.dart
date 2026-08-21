@@ -98,7 +98,7 @@ class StartingScreen extends StatelessWidget {
                     child: const Text(
                       'Sign In',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -131,7 +131,7 @@ class StartingScreen extends StatelessWidget {
                     child: const Text(
                       'Create an Account',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

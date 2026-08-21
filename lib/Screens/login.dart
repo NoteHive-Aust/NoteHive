@@ -133,38 +133,48 @@ Widget _buildLabel(String text) {
 }
 
 Widget _buildEmailField() {
-  return TextFormField(
-    decoration: InputDecoration(
-      hintText: 'Enter your email',
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  return Container( 
+    child: TextFormField(
+      decoration:  InputDecoration(
+        hintText: 'Enter your email',
+        filled: true,
+        fillColor: Color(0xFFE6E3FC).withOpacity(0.3),
+        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      obscureText: true,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your email';
+        }
+        // Add more email validation logic if needed
+        return null;
+      },
     ),
-    keyboardType: TextInputType.emailAddress,
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return 'Please enter your email';
-      }
-      // Add more email validation logic if needed
-      return null;
-    },
+
   );
+  
 }
 
 Widget _buildPasswordField() {
-  return TextFormField(
-    decoration: InputDecoration(
-      hintText: 'Enter your password',
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  return Container(
+    child: TextFormField(
+      obscureText: true,
+      decoration:  InputDecoration(
+        hintText: 'Enter your password',
+        filled: true,
+        fillColor:  Color(0xFFE6E3FC).withOpacity(0.3),
+        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your password';
+        }
+        // Add more password validation logic if needed
+        return null;
+      },
     ),
-    obscureText: true,
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return 'Please enter your password';
-      }
-      // Add more password validation logic if needed
-      return null;
-    },
   );
 }
 
