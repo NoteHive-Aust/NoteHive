@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/joinRoom.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
+import 'package:notehive/widgets/listTileForBrowseRoom.dart';
 import 'package:notehive/widgets/searchBox.dart';
 
 class Browseroom extends StatefulWidget {
@@ -14,104 +16,59 @@ class _BrowseroomState extends State<Browseroom> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appbar(),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 40),
-            Text(
-              "Browse Rooms",
-              style: TextStyle(
-                fontSize: 40,
-                //color: Color(0xff1A1730),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.only(top: 40,left: 20,right: 20,bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Flexible(child: SearchBox(lebel: 'Search for room')),
-                IconButton.filled(
-                  onPressed: () {},
-                  icon: Icon(Icons.filter_list),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Color(0xff8474F0),
-                    foregroundColor: Colors.white,
+                Text(
+                  "Browse Rooms",
+                  style: TextStyle(
+                    fontSize: 40,
+                    //color: Color(0xff1A1730),
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(child: SearchBox(lebel: 'Search for room')),
+                    IconButton.filled(
+                      onPressed: () {},
+                      icon: Icon(Icons.filter_list),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Color(0xff8474F0),
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            Expanded(
-              child: ListView.separated(
-                itemCount:15,
-                itemBuilder: (context, index) {
-                  return Container(
-                    // margin: EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Color(0xff352E60).withOpacity(0.1)),
-                      borderRadius: BorderRadius.circular(16)
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        'Data Structure | 1205',
-                        style: TextStyle(
-                          color: Color(0xff1A1730),
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      subtitle: Row(
-                        children: [
-                          Icon(Icons.people_alt_outlined, size: 16),
-                          SizedBox(width: 5),
-                          Text(
-                            '15 ',
-                            style: TextStyle(
-                              color: Color(0xff352E60),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            'Members',
-                            style: TextStyle(
-                              color: Color(0xff352E60).withOpacity(0.6),
-                            ),
-                          ),
-                        ],
-                      ),
+          ),
 
-                      trailing: OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          overlayColor: Color(0xff8474F0),
-                          side: BorderSide(
-                            color: Color(0xff352E60).withOpacity(0.1),
-                          ),
-                          visualDensity: VisualDensity.compact,
-                          // fixedSize: Size(75,25)
-                        ),
-                        child: Text(
-                          "Join",
-                          style: TextStyle(fontSize: 12),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      style: ListTileStyle.drawer,
-                    ),
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return SizedBox(height: 10);
-                },
-
-              ),
+          Expanded(
+            child: ListView.separated(
+              padding:EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              itemCount: 15,
+              itemBuilder: (context, index) {
+                return listTileforBrowseRoom(context: context,title: 'Data Structure | 1205',member: 15);
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(height: 10);
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
+
 
   AppBar appbar() {
     return AppBar(

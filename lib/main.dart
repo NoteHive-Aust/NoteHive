@@ -21,7 +21,13 @@ class MyApp extends StatelessWidget {
         colorScheme: .fromSeed(seedColor: Color(0xff8474F0)),
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: AppBarTheme(backgroundColor: Colors.white),
+        textTheme: TextTheme(
+          titleLarge: TextStyle(
+                  fontFamily: 'Heading',
 
+                  fontWeight: FontWeight.bold
+          )
+        ),
         iconButtonTheme: IconButtonThemeData(
 
           style: IconButton.styleFrom(
