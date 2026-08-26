@@ -24,8 +24,8 @@ class _BrowseroomState extends State<Browseroom> {
               "Browse Rooms",
               style: TextStyle(
                 fontSize: 40,
-                color: Color(0xff1A1730),
-                fontWeight: FontWeight.w500,
+                //color: Color(0xff1A1730),
+                fontWeight: FontWeight.bold,
               ),
             ),
             Row(

@@ -21,16 +21,30 @@ class MyApp extends StatelessWidget {
         colorScheme: .fromSeed(seedColor: Color(0xff8474F0)),
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: AppBarTheme(backgroundColor: Colors.white),
+
+        iconButtonTheme: IconButtonThemeData(
+
+          style: IconButton.styleFrom(
+            overlayColor: Color(0xff8474F0),
+
+          )
+        ),
         outlinedButtonTheme: OutlinedButtonThemeData(
+
           style: OutlinedButton.styleFrom(
+            overlayColor: Color(0xff8474F0),
             side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
             visualDensity: VisualDensity.compact,
           ),
         ),
         listTileTheme: ListTileThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
+          ),
           titleTextStyle: TextStyle(
-
-            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
             color: Color(0xff1A1730),
             fontFamily: 'heading',
           ),

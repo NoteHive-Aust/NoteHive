@@ -29,6 +29,7 @@ class _PagecontrollerState extends State<Pagecontroller>
       body: Stack(
         children: [
           TabBarView(
+            physics: NeverScrollableScrollPhysics(),
             controller: _tabController,
 
             children: [

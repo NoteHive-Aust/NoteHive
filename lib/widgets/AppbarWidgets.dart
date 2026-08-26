@@ -13,6 +13,7 @@ IconButton NotificationButtonForAppBar({required BuildContext context}) {
     icon: Icon(Icons.notifications_none),
     style: IconButton.styleFrom(
       foregroundColor: Color(0xFF1A1730),
+      overlayColor: Color(0xff8474F0),
       //backgroundColor: Colors.white,
     ),
   );

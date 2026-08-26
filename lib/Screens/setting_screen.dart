@@ -35,6 +35,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 SearchBox(lebel: "Search for Settings"),
                 //SizedBox(height: 20,),
                 ProfileEditTab(),
+                SizedBox(height: 20,),
                 PushNotificationToggle(),
                 SizedBox(height: 20),
                 Text("Account", style: TextStyle(color: Color(0xff352E60))),
@@ -105,6 +106,7 @@ class _SettingScreenState extends State<SettingScreen> {
             splashColor: Color(0xff9689F2).withOpacity(0.2),
             onTap: () {},
             child: ListTile(
+              shape: RoundedRectangleBorder(),
               contentPadding: EdgeInsets.all(0),
               leading: Icon(Icons.delete_outline_rounded, color: Colors.red),
               title: Text(
@@ -198,6 +200,10 @@ class _SettingScreenState extends State<SettingScreen> {
     return InkWell(
       onTap: () {},
       child: ListTile(
+        shape: RoundedRectangleBorder(
+          //borderRadius: BorderRadius.circular(16),
+          //side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
+        ),
         contentPadding: EdgeInsets.all(0),
         leading: Icon(icon),
         title: Text("$title", style: TextStyle(fontSize: 14)),
@@ -226,54 +232,39 @@ class _SettingScreenState extends State<SettingScreen> {
     );
   }
 
-  Container PushNotificationToggle() {
-    return Container(
-      padding: EdgeInsets.all(10),
-      margin: EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(0),
-        leading: Icon(Icons.notifications_none),
-        title: Text("Push Notification",style: TextStyle(fontSize: 14)),
-        trailing: Switch.adaptive(
-          // activeColor: Color(0xff8474F0),
-          activeThumbColor: Colors.white,
-          activeTrackColor: Color(0xff8474F0),
-          inactiveTrackColor: Color(0xff8474F0).withOpacity(0.01),
-          inactiveThumbColor: Colors.black12,
-          trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
-            (states) => Color(0xFF352E60).withOpacity(0.1),
-          ),
-          value: pushNotification,
-          onChanged: (bool toggleSwicth) {
-            setState(() {
-              pushNotification = toggleSwicth;
-            });
-          },
+  ListTile PushNotificationToggle() {
+    return ListTile(
+      // contentPadding: EdgeInsets.all(0),
+      leading: Icon(Icons.notifications_none),
+      title: Text("Push Notification",style: TextStyle(fontSize: 14)),
+      trailing: Switch.adaptive(
+        // activeColor: Color(0xff8474F0),
+        activeThumbColor: Colors.white,
+        activeTrackColor: Color(0xff8474F0),
+        inactiveTrackColor: Color(0xff8474F0).withOpacity(0.01),
+        inactiveThumbColor: Colors.black12,
+        trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) => Color(0xFF352E60).withOpacity(0.1),
         ),
+        value: pushNotification,
+        onChanged: (bool toggleSwicth) {
+          setState(() {
+            pushNotification = toggleSwicth;
+          });
+        },
       ),
     );
   }
 
-  Container ProfileEditTab() {
-    return Container(
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(0),
-        leading: CircleAvatar(foregroundImage: AssetImage('assets/image.jpg')),
-        title: Text("Student Name"),
-        subtitle: Text("University Name"),
-        trailing: OutlinedButton(
-          onPressed: () {},
-          child: Text("Edit", style: TextStyle(fontSize: 12)),
-        ),
+  ListTile ProfileEditTab() {
+    return ListTile(
+      //contentPadding: EdgeInsets.all(0),
+      leading: CircleAvatar(foregroundImage: AssetImage('assets/image.jpg')),
+      title: Text("Student Name"),
+      subtitle: Text("University Name"),
+      trailing: OutlinedButton(
+        onPressed: () {},
+        child: Text("Edit", style: TextStyle(fontSize: 12)),
       ),
     );
   }

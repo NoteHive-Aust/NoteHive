@@ -25,7 +25,7 @@ class _HomescreenState extends State<Homescreen> {
               "My Rooms",
               style: TextStyle(
                 fontSize: 40,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
                 color: Color(0xFF1A1730),
               ),
             ),
@@ -87,6 +87,7 @@ class _HomescreenState extends State<Homescreen> {
                       style: TextStyle(
                         //ontSize: 12,
                         fontWeight: FontWeight.bold,
+                          color: Color(0xff352E60)
                       ),
                     ),
                     Text(" Members",),
@@ -101,6 +102,7 @@ class _HomescreenState extends State<Homescreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xff352E60)
                       ),
                     ),
                     Text(" Resources", style: TextStyle(fontSize: 12)),
