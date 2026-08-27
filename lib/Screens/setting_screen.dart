@@ -19,7 +19,9 @@ class _SettingScreenState extends State<SettingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text("Settings", style: TextStyle(
+            fontFamily: 'Heading',
+            fontWeight: FontWeight.bold)),
         automaticallyImplyLeading: false,
         actionsPadding: EdgeInsets.only(right: 20),
         actions: [NotificationButtonForAppBar(context: context)],
