@@ -87,14 +87,15 @@ class _BrowseroomState extends State<Browseroom> {
           Text(
             "Sheikh Hasina",
             style: TextStyle(
+              fontFamily: 'paragraph',
               fontSize: 16,
               color: Color(0xFF352E60),
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
             ),
           ),
           Text(
             "NUET",
-            style: TextStyle(fontSize: 12, color: Color(0xFF352E60)),
+            style: TextStyle(fontSize: 12, color: Color(0xFF352E60),fontWeight: FontWeight.normal,fontFamily: 'paragraph'),
           ),
         ],
       ),
