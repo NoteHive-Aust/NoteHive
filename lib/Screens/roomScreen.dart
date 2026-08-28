@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
+import 'package:notehive/Screens/resourcesScreen.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/cards.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
+import 'package:notehive/widgets/leadingbackButton.dart';
+import 'package:notehive/widgets/listTileForResources.dart';
 import 'package:notehive/widgets/searchBox.dart';
 
 class RoomScreen extends StatefulWidget {
@@ -47,17 +50,7 @@ class _RoomScreenState extends State<RoomScreen> {
       appBar: AppBar(
         leadingWidth: 70,
         actionsPadding: EdgeInsets.only(right: 20),
-        leading: IconButton.outlined(
-          iconSize: 30,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: Icon(Icons.chevron_left),
-          style: IconButton.styleFrom(
-            foregroundColor: Color(0xFF1A1730),
-            shape: const CircleBorder(),
-          ),
-        ),
+        leading: LeadingBackButton(context),
         title: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +142,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 title: 'Recent Resources',
                 buttonText: 'See All',
                 method: () {
-                  //navigate to resources page
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ResourcesScreen()));
                 },
               ),
               SizedBox(height: 10),
@@ -162,58 +155,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   return SizedBox(height: 10);
                 },
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    onTap: (){},
-                    trailing: Icon(Icons.chevron_right, size: 34),
-                    leading: Icon(Icons.description_outlined, size: 34),
-                    title: Text('Data Structure - Unit 4'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('CSE1203.Sem 5.Notes'),
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 2,
-                              ),
-                              // height: 16,
-                              // width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(120),
-                                border: Border.all(
-                                  color: Color(0xff352E60).withOpacity(0.6),
-                                ),
-                              ),
-
-                              //padding: EdgeInsets.all(5),
-                              child: Center(
-                                child: Text(
-                                  'Notes',
-                                  style: TextStyle(
-                                    fontFamily: 'paragraph',
-                                    fontSize: 12,
-                                    color: Color(0xff352E60),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              'By Mushfiq',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xff352E60),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    //isThreeLine: true,
-                  );
+                  return ResourcesListTile(title: 'Data Structure - Unit 4',subtitle: 'CSE1203.Sem 5.Notes');
                 },
               ),
             ],
@@ -222,4 +164,5 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
   }
+
 }
