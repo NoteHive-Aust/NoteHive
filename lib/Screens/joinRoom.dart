@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
 import 'package:notehive/widgets/listTileForBrowseRoom.dart';
 
 class Joinroom extends StatefulWidget {
@@ -134,18 +135,7 @@ class _JoinroomState extends State<Joinroom> {
                 ),
               ),
               SizedBox(height: 40,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Browse Public Rooms",style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),),
-                  OutlinedButton(onPressed: (){
-                        Navigator.of(context).pop();
-                  }, child: Text('See All'))
-                ],
-              ),
+              LeadingTitleAndTailButton(context: context,title: 'Browse Public Rooms',buttonText: 'See All',method: Navigator.of(context).pop),
               ListView.separated(
                 shrinkWrap: true,
                 // /padding:EdgeInsets.symmetric(horizontal: 20, vertical: 10),

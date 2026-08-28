@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/roomScreen.dart';
 
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
@@ -33,12 +34,14 @@ class _HomescreenState extends State<Homescreen> {
               child: ListView.builder(
                 itemCount: 20,
                 itemBuilder: (context, item) {
-                  return listItemCard(roomName: 'Box er Class',
+                  return listItemCard(roomName: 'Data Structure | 1205',
                       universityName: 'AUST University',
                       members: 118,
                       resources: 20,
                       isPrivate: false,
-                      method: () {});
+                      method: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'Data Structure | 1205',roomSubtitle: 'AUST University',)));
+                      });
                 },
               ),
             ),
