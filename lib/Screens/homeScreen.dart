@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Screens/roomScreen.dart';
+import 'package:notehive/Structures/roomStructure.dart';
+import 'package:notehive/Structures/userStructure.dart';
 
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
@@ -12,6 +15,7 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+  bool isAdmin=true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +44,7 @@ class _HomescreenState extends State<Homescreen> {
                       resources: 20,
                       isPrivate: false,
                       method: () {
+                      isAdmin?Navigator.push(context, MaterialPageRoute(builder: (context)=>RoomScreenAdminOrMod(room: Room(name: 'Data Structure | 1205', schoolName: 'AUST University',roomCode: 'AJ48I3', admin: User(name: 'Shaheer', memberAt: []), moderators: []),))):
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'Data Structure | 1205',roomSubtitle: 'AUST University',)));
                       });
                 },
