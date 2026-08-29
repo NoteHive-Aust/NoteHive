@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:notehive/Screens/signup.dart';
+import 'package:notehive/Screens/signup.dart';
 import 'package:notehive/Screens/login.dart';
 
 

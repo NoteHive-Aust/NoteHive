@@ -50,15 +50,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 repPoints: '1,200',
                 rooms: '4',
               ),
-              SizedBox(
-                height: 40,
-              ),
-              titleMaker(
-                label: 'Joined Rooms'
-              ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 40),
+              titleMaker(label: 'Joined Rooms'),
+              SizedBox(height: 20),
               ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -67,21 +61,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return SizedBox(height: 10);
                 },
                 itemBuilder: (context, index) {
-                  return JoinedRoomCard(
-                    roomName: 'Box er Class',
-                    members: 130,
-                  );
+                  return JoinedRoomCard(roomName: 'Box er Class', members: 130, method: () {},);
                 },
               ),
-              SizedBox(
-                height: 40,
-              ),
-              titleMaker(
-                label: 'My Uploads',
-              ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 40),
+              titleMaker(label: 'My Uploads'),
+              SizedBox(height: 20),
               ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -93,6 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return MyUploadsCard(
                     title: 'DS Question Bank',
                     subtitle: 'CSE 2103. Fall2025. Question Bank',
+                    method: () {},
                   );
                 },
               ),
@@ -216,38 +202,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget titleMaker({required String label}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1730),
-          ),
+    return ListTile(
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 21,
+          fontWeight: FontWeight.w800,
         ),
-        Container(
-         height: 20, width: 50,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Color(0xFF352E60).withOpacity(0.1),
-              width: 1.5,
-            ),
-            borderRadius: BorderRadius.circular(120),
-            color: Colors.white,
+      ),
+      trailing: OutlinedButton(
+        onPressed: () {},
+        style: OutlinedButton.styleFrom(
+          overlayColor: Color(0xff8474F0),
+          side: BorderSide(
+            color: Color(0xff352E60).withOpacity(0.1),
           ),
-          child: Center(
-            child: Text(
-              'See All',
-              style: TextStyle(
-                fontSize: 9.5,
-              ),
-            ),
-          ),
+          visualDensity: VisualDensity.compact,
+          //fixedSize: Size(70,25)
         ),
-      ],
+        child: Text(
+          "See All",
+          style: TextStyle(fontSize: 12),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
     );
   }
-
 }
