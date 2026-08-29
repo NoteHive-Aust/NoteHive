@@ -9,6 +9,7 @@ IconButton LeadingBackButton(BuildContext context) {
     },
     icon: Icon(Icons.chevron_left),
     style: IconButton.styleFrom(
+      overlayColor: Colors.deepPurpleAccent,
       foregroundColor: Color(0xFF1A1730),
       shape: const CircleBorder(),
     ),
