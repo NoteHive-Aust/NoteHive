@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notehive/Screens/members.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
 import 'package:notehive/widgets/leadingbackButton.dart';
 
 import '../Structures/roomStructure.dart';
+import '../widgets/floatingUploadButton.dart';
 
 class RoomScreenAdminOrMod extends StatefulWidget {
   final Room room;
@@ -16,10 +18,11 @@ class RoomScreenAdminOrMod extends StatefulWidget {
 }
 
 class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
-  late bool isAdmin = widget.room.admin.name == 'Shaheer';
+  late bool isAdmin = widget.room.admin.name == 'Shaher';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: floatingUploadButton(),
       endDrawer: DrawerWidget(context),
       appBar: AppbarWidget(context),
       body: Padding(
@@ -69,6 +72,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               lombaButton(context: context, text: 'View Announcement', method: (){
                 Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RoomAnnouncementPage()));
               },bgColor: Colors.white,fgColor: Color(0xff352E60)),
+              SizedBox(height: 200,),
             ],
           ),
         ),
@@ -172,7 +176,9 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               ),
             ),
             DrawerWidgets(
-              method: () {},
+              method: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MembersScreen()));
+              },
               text: 'Members',
               icon: Icons.people_outline_rounded,
             ),

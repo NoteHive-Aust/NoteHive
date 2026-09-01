@@ -8,6 +8,8 @@ import 'package:notehive/widgets/leadingbackButton.dart';
 import 'package:notehive/widgets/listTileForResources.dart';
 import 'package:notehive/widgets/searchBox.dart';
 
+import '../widgets/floatingUploadButton.dart';
+
 class RoomScreen extends StatefulWidget {
   const RoomScreen({
     super.key,
@@ -25,7 +27,6 @@ class _RoomScreenState extends State<RoomScreen> {
     "Science",
     "Math",
     "English",
-
     "History",
     "Programming",
     "Physics",
@@ -34,19 +35,7 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: SizedBox(
-        height: 70,
-        width: 70,
-        child: FloatingActionButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40.0), // Custom corner radius
-          ),
-          onPressed: () {},
-
-          backgroundColor: Color(0xFF8474F0),
-          child: Icon(Icons.file_upload_rounded, color: Colors.white,size: 36,),
-        ),
-      ),
+      floatingActionButton: floatingUploadButton(),
       appBar: AppBar(
         leadingWidth: 70,
         actionsPadding: EdgeInsets.only(right: 20),
@@ -164,5 +153,7 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
   }
+
+
 
 }

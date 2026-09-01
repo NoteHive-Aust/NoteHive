@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
+import 'package:notehive/widgets/leadingbackButton.dart';
 import 'package:notehive/widgets/listTileForBrowseRoom.dart';
 
 class Joinroom extends StatefulWidget {
@@ -14,7 +15,10 @@ class _JoinroomState extends State<Joinroom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Join Room')),
+      appBar: AppBar(
+        leadingWidth: 70,
+          leading: LeadingBackButton(context),
+          title: Text('Join Room')),
       body: Padding(
         padding: EdgeInsets.only(top: 40,left: 20,right: 20),
         child: SingleChildScrollView(
