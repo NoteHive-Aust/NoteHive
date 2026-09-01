@@ -151,7 +151,7 @@ Widget _buildLogo() {
       ClipRRect(
         borderRadius: BorderRadius.circular(10.0),
         child: Image.asset(
-          'assets/logo.png',
+          'assets/Logo.png',
           width: 125,
           height: 28,
           fit: BoxFit.contain,
