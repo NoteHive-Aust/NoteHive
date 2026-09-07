@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/joinRoom.dart';
+import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/listTileForBrowseRoom.dart';
 import 'package:notehive/widgets/searchBox.dart';
@@ -100,7 +101,7 @@ class _BrowseroomState extends State<Browseroom> {
         ],
       ),
       actionsPadding: EdgeInsets.only(right: 20),
-      actions: [NotificationButtonForAppBar(context: context)],
+      actions: [NotificationButtonForAppBar(context: context,screen: NotificationsScreen())],
     );
   }
 }

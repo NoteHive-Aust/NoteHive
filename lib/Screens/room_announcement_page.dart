@@ -20,12 +20,8 @@ class _RoomAnnouncementPageState extends State<RoomAnnouncementPage> {
           padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
           itemCount: 10,
           separatorBuilder: (context, index) {
-            return Divider(
-              height: 1,
-              thickness: 1,
-              indent: 18,
-              endIndent: 18,
-              color: Color(0xFF352E60).withOpacity(0.08),
+            return SizedBox(
+              height: 15,
             );
           },
           itemBuilder: (context, index) {

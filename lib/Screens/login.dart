@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/homeScreen.dart';
 import 'package:notehive/Screens/pageController.dart';
+import 'package:notehive/Screens/signup.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -40,7 +41,7 @@ class _LoginState extends State<Login> {
               children: [
                 _buildLogo(),
                 const SizedBox(height: 64),
-                _buildHeader(),
+                _buildHeader(context: context),
                 const SizedBox(height: 32),
                 _buildLabel('Email'),
                 const SizedBox(height: 8),
@@ -84,7 +85,7 @@ Widget _buildLogo() {
   );
 }
 
-Widget _buildHeader() {
+Widget _buildHeader({required BuildContext context}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
@@ -105,6 +106,7 @@ Widget _buildHeader() {
           GestureDetector(
             onTap: () {
               // Handle sign up navigation
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupScreen()));
             },
             child: const Text(
               'Sign Up',
@@ -143,7 +145,7 @@ Widget _buildEmailField() {
         border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
-      obscureText: true,
+      //obscureText: true,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your email';

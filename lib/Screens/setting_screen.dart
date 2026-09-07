@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notehive/Screens/notifications_screen.dart';
 
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
@@ -24,7 +25,7 @@ class _SettingScreenState extends State<SettingScreen> {
             fontWeight: FontWeight.bold)),
         automaticallyImplyLeading: false,
         actionsPadding: EdgeInsets.only(right: 20),
-        actions: [NotificationButtonForAppBar(context: context)],
+        actions: [NotificationButtonForAppBar(context: context,screen: NotificationsScreen())],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
