@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/resourcesScreen.dart';
+import 'package:notehive/Screens/room_announcement_page.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/cards.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
@@ -35,7 +36,7 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: floatingUploadButton(),
+      floatingActionButton: floatingUploadButton(context: context),
       appBar: AppBar(
         leadingWidth: 70,
         actionsPadding: EdgeInsets.only(right: 20),
@@ -63,7 +64,7 @@ class _RoomScreenState extends State<RoomScreen> {
             ),
           ],
         ),
-        actions: [NotificationButtonForAppBar(context: context)],
+        actions: [NotificationButtonForAppBar(context: context,screen: RoomAnnouncementPage())],
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -88,7 +89,9 @@ class _RoomScreenState extends State<RoomScreen> {
                       visualDensity: VisualDensity.compact,
                       //fixedSize: Size.fromHeight(20)
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ResourcesScreen(filtered: categories[index],)));
+                    },
                     child: Text(categories[index]),
                   );
                 }),

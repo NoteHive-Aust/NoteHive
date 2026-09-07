@@ -1,13 +1,13 @@
 import "package:flutter/material.dart";
 import "package:notehive/Screens/notifications_screen.dart";
 
-IconButton NotificationButtonForAppBar({required BuildContext context}) {
+IconButton NotificationButtonForAppBar({required BuildContext context,required Widget screen}) {
   return IconButton.outlined(
     iconSize: 30,
     onPressed: () {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => NotificationsScreen()),
+        MaterialPageRoute(builder: (context) => screen),
       );
     },
     icon: Icon(Icons.notifications_none),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notehive/Screens/members.dart';
+import 'package:notehive/Screens/moderators.dart';
 import 'package:notehive/Screens/pendingApproval.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
@@ -20,11 +21,11 @@ class RoomScreenAdminOrMod extends StatefulWidget {
 }
 
 class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
-  late bool isAdmin = widget.room.admin.name == 'Shaher';
+  late bool isAdmin = widget.room.admin.name == 'Shaheer';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: floatingUploadButton(),
+      floatingActionButton: floatingUploadButton(context: context),
       endDrawer: DrawerWidget(context),
       appBar: AppbarWidget(context),
       body: Padding(
@@ -224,20 +225,21 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               icon: Icons.people_outline_rounded,
             ),
             Divider(),
+            isAdmin?
             DrawerWidgets(
               method: () {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => ModeratorsScreen()));
               },
               text: 'Moderators',
               icon: Icons.admin_panel_settings_outlined,
-            ),
+            ):SizedBox(),
             // Divider(),
             // DrawerWidgets(
             //   method: () {},
             //   text: 'Analytics',
             //   icon: Icons.auto_graph_outlined,
             // ),
-            Divider(),
+            isAdmin?Divider():SizedBox(),
             DrawerWidgets(
               method: () {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context)=>PendingApprovalScreen()));
@@ -273,64 +275,68 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
 
   Expanded Card4() {
     return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0xff8474F0),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Color(0xff352E60).withOpacity(0.1)),
-        ),
-        padding: EdgeInsets.all(15),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '04',
-                  style: TextStyle(
-                    fontSize: 40,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xff6A5DC0),
-                    shape: BoxShape.circle,
-                  ),
-                  padding: EdgeInsets.all(5),
+      child: InkWell(
+        onTap: (){Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ModeratorsScreen()));},
+        child: Container(
 
-                  child: Icon(
-                    Icons.people_outline_rounded,
-                    size: 25,
-                    color: Colors.white,
+          decoration: BoxDecoration(
+            color: Color(0xff8474F0),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Color(0xff352E60).withOpacity(0.1)),
+          ),
+          padding: EdgeInsets.all(15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '04',
+                    style: TextStyle(
+                      fontSize: 40,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xff6A5DC0),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: EdgeInsets.all(5),
+
+                    child: Icon(
+                      Icons.people_outline_rounded,
+                      size: 25,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12),
+              Text(
+                'Moderators',
+                style: TextStyle(
+                  fontFamily: 'paragraph',
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Text(
-              'Moderators',
-              style: TextStyle(
-                fontFamily: 'paragraph',
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
               ),
-            ),
-            Text(
-              'View Details ->',
-              style: TextStyle(
-                fontFamily: 'paragraph',
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-                color: Colors.white,
+              Text(
+                'View Details ->',
+                style: TextStyle(
+                  fontFamily: 'paragraph',
+                  fontSize: 12,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -544,7 +550,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
       ),
       actionsPadding: EdgeInsets.only(right: 20),
       actions: [
-        IconButton(
+        isAdmin?IconButton(
           iconSize: 30,
           onPressed: () {
             Navigator.push(
@@ -557,7 +563,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
             foregroundColor: Colors.white,
             backgroundColor: Colors.black,
           ),
-        ),
+        ):SizedBox(),
         SizedBox(width: 10),
         Builder(
           builder: (context) {

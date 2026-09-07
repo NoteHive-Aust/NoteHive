@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
 import 'package:notehive/widgets/leadingbackButton.dart';
 import 'package:notehive/widgets/listTileForBrowseRoom.dart';
@@ -80,7 +81,7 @@ class _JoinroomState extends State<Joinroom> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'roomName', roomSubtitle: "roomSubtitle")));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor:  Color(0xFF8474F0),

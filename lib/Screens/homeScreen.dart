@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
+import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/Structures/userStructure.dart';
@@ -15,7 +16,7 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
-  bool isAdmin=true;
+  bool isAdmin=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,22 +158,27 @@ class _HomescreenState extends State<Homescreen> {
           foregroundImage: AssetImage('assets/image.jpg'),
         ),
       ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Sheikh Hasina",
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF352E60),
-              fontWeight: FontWeight.w500,
+      title: InkWell(
+        onTap: (){
+
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Sheikh Hasina",
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF352E60),
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-          Text(
-            "NUET",
-            style: TextStyle(fontSize: 12, color: Color(0xFF352E60)),
-          ),
-        ],
+            Text(
+              "NUET",
+              style: TextStyle(fontSize: 12, color: Color(0xFF352E60)),
+            ),
+          ],
+        ),
       ),
       actionsPadding: EdgeInsets.only(right: 20),
       actions: [
@@ -186,7 +192,7 @@ class _HomescreenState extends State<Homescreen> {
           ),
         ),
         SizedBox(width: 10),
-        NotificationButtonForAppBar(context: context),
+        NotificationButtonForAppBar(context: context,screen: NotificationsScreen()),
       ],
     );
   }
