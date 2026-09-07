@@ -79,7 +79,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 height: 55,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Color(0xFF352E60).withOpacity(0.03),
+                  color: Color(0xFFB5ACF6).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
@@ -111,7 +111,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 height: 55,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Color(0xFF352E60).withOpacity(0.03),
+                  color: Color(0xFFB5ACF6).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
@@ -143,7 +143,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 height: 55,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Color(0xFF352E60).withOpacity(0.03),
+                  color: Color(0xFFB5ACF6).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: DropdownButtonHideUnderline(
@@ -190,7 +190,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 height: 55,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Color(0xFF352E60).withOpacity(0.03),
+                  color: Color(0xFFB5ACF6).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: DropdownButtonHideUnderline(
