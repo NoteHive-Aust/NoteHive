@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/resourceUpload.dart';
 
-Widget bottomNavigation({required int selectedIndex,
+Widget bottomNavigation({required BuildContext context,required int selectedIndex,
   required ValueChanged<int> onItemSelected,}){
   return Container(
     //padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10,),
@@ -23,7 +24,7 @@ Widget bottomNavigation({required int selectedIndex,
         },isSelected: selectedIndex==1),
         IconButton(
             onPressed: (){
-
+                Navigator.of(context).push(MaterialPageRoute(builder: ((context) => ResourceUploadScreen())));
             },
             icon: Icon(Icons.add,),
             iconSize: 24,
