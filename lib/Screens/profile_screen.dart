@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
+import 'package:notehive/Screens/pageController.dart';
+import 'package:notehive/Screens/my_uploads.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
-import '../widgets/bottomNavigation.dart';
+import 'package:notehive/Structures/roomStructure.dart';
+import 'package:notehive/Structures/userStructure.dart';
 import '../widgets/cards.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -51,7 +55,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 rooms: '4',
               ),
               SizedBox(height: 40),
-              titleMaker(label: 'Joined Rooms'),
+              titleMaker(
+                label: 'Joined Rooms',
+                method: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Pagecontroller()),
+                  );
+                },
+              ),
               SizedBox(height: 20),
               ListView.separated(
                 shrinkWrap: true,
@@ -61,11 +73,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return SizedBox(height: 10);
                 },
                 itemBuilder: (context, index) {
-                  return JoinedRoomCard(roomName: 'Box er Class', members: 130, method: () {},);
+                  return JoinedRoomCard(
+                    roomName: 'Box er Class',
+                    members: 130,
+                    method: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RoomScreenAdminOrMod(
+                            room: Room(
+                              name: 'Box er Class',
+                              schoolName: 'AUST University',
+                              roomCode: 'AJ48I3',
+                              admin: User(name: 'Shaheer', memberAt: []),
+                              moderators: [],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
               SizedBox(height: 40),
-              titleMaker(label: 'My Uploads'),
+              titleMaker(
+                label: 'My Uploads',
+                method: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyUploads()),
+                  );
+                },
+              ),
               SizedBox(height: 20),
               ListView.separated(
                 shrinkWrap: true,
@@ -201,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget titleMaker({required String label}) {
+  Widget titleMaker({required String label, required VoidCallback method}) {
     return ListTile(
       title: Text(
         label,
@@ -211,14 +250,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       trailing: OutlinedButton(
-        onPressed: () {},
+        onPressed: method,
         style: OutlinedButton.styleFrom(
           overlayColor: Color(0xff8474F0),
           side: BorderSide(
             color: Color(0xff352E60).withOpacity(0.1),
           ),
           visualDensity: VisualDensity.compact,
-          //fixedSize: Size(70,25)
         ),
         child: Text(
           "See All",
