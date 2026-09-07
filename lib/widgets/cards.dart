@@ -162,3 +162,65 @@ class _NotificationsCardState extends State<NotificationsCard> {
     );
   }
 }
+
+class RoomToggleCard extends StatelessWidget {
+  final bool privateRoom;
+  final ValueChanged<bool> onPrivateRoomChanged;
+  final bool onlyModeratorUpload;
+  final ValueChanged<bool> onOnlyModeratorUploadChanged;
+
+  const RoomToggleCard({
+    super.key,
+    required this.privateRoom,
+    required this.onPrivateRoomChanged,
+    required this.onlyModeratorUpload,
+    required this.onOnlyModeratorUploadChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            title: Text("Private Room", style: TextStyle(fontSize: 14)),
+            trailing: Switch.adaptive(
+              activeThumbColor: Colors.white,
+              activeTrackColor: Color(0xff8474F0),
+              inactiveTrackColor: Color(0xff8474F0).withOpacity(0.01),
+              inactiveThumbColor: Colors.black12,
+              trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
+                (states) => Color(0xFF352E60).withOpacity(0.1),
+              ),
+              value: privateRoom,
+              onChanged: (bool value) {
+                onPrivateRoomChanged(value);
+              },
+            ),
+          ),
+          Divider(height: 1),
+          ListTile(
+            title: Text("Only Moderator Upload", style: TextStyle(fontSize: 14)),
+            trailing: Switch.adaptive(
+              activeThumbColor: Colors.white,
+              activeTrackColor: Color(0xff8474F0),
+              inactiveTrackColor: Color(0xff8474F0).withOpacity(0.01),
+              inactiveThumbColor: Colors.black12,
+              trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
+                (states) => Color(0xFF352E60).withOpacity(0.1),
+              ),
+              value: onlyModeratorUpload,
+              onChanged: (bool value) {
+                onOnlyModeratorUploadChanged(value);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

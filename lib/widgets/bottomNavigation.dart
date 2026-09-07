@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:notehive/widgets/pop_up.dart';
+
 Widget bottomNavigation({required int selectedIndex,
   required ValueChanged<int> onItemSelected,}){
   return Container(
@@ -21,16 +23,18 @@ Widget bottomNavigation({required int selectedIndex,
         iconBtn(icon: Icons.explore_outlined,method: (){
           onItemSelected(1);
         },isSelected: selectedIndex==1),
-        IconButton(
-            onPressed: (){
-
-            },
-            icon: Icon(Icons.add,),
-            iconSize: 24,
-            style: IconButton.styleFrom(
-                backgroundColor: Color(0xFF8474F0),
-                foregroundColor: Colors.white
-            )
+        Builder(
+          builder: (context) => IconButton(
+              onPressed: (){
+                showCreateOrJoinDialog(context);
+              },
+              icon: Icon(Icons.add,),
+              iconSize: 24,
+              style: IconButton.styleFrom(
+                  backgroundColor: Color(0xFF8474F0),
+                  foregroundColor: Colors.white
+              )
+          ),
         ),
         iconBtn(icon: Icons.person_outline,method: (){
           onItemSelected(2);
