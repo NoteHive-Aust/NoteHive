@@ -4,6 +4,7 @@ import 'package:notehive/Screens/members.dart';
 import 'package:notehive/Screens/pendingApproval.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
+import 'package:notehive/Screens/room_settings.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
 import 'package:notehive/widgets/leadingbackButton.dart';
 
@@ -224,7 +225,9 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
             ),
             Divider(),
             DrawerWidgets(
-              method: () {},
+              method: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ModeratorsScreen()));
+              },
               text: 'Moderators',
               icon: Icons.admin_panel_settings_outlined,
             ),
@@ -543,7 +546,12 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
       actions: [
         IconButton(
           iconSize: 30,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RoomSettings()),
+            );
+          },
           icon: Icon(Icons.edit_note),
           style: IconButton.styleFrom(
             foregroundColor: Colors.white,

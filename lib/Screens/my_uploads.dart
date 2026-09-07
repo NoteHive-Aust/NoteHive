@@ -42,7 +42,9 @@ class _MyUploadsState extends State<MyUploads> {
         padding: const EdgeInsets.only(left: 20),
         child: IconButton.outlined(
           iconSize: 30,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
           icon: Icon(Icons.chevron_left),
           style: IconButton.styleFrom(
             foregroundColor: Color(0xFF1A1730),
