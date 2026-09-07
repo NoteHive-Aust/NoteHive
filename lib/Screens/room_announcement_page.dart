@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/moderators.dart';
 import '../widgets/cards.dart';
 
 class RoomAnnouncementPage extends StatefulWidget {
@@ -67,6 +68,62 @@ class _RoomAnnouncementPageState extends State<RoomAnnouncementPage> {
           color: Color(0xFF1A1730),
         ),
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: PopupMenuButton<String>(
+            icon: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Color(0xFF352E60).withOpacity(0.1),
+                ),
+              ),
+              child: Icon(
+                Icons.more_vert,
+                color: Color(0xFF1A1730),
+                size: 20,
+              ),
+            ),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            onSelected: (value) {
+              if (value == 'moderators') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ModeratorsScreen()),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'moderators',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.admin_panel_settings_outlined,
+                      color: Color(0xFF1A1730),
+                      size: 20,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Moderators',
+                      style: TextStyle(
+                        color: Color(0xFF1A1730),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

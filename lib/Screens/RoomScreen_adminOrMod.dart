@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notehive/Screens/members.dart';
+import 'package:notehive/Screens/moderators.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
 import 'package:notehive/Screens/room_settings.dart';
@@ -185,7 +186,9 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
             ),
             Divider(),
             DrawerWidgets(
-              method: () {},
+              method: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ModeratorsScreen()));
+              },
               text: 'Moderators',
               icon: Icons.admin_panel_settings_outlined,
             ),
