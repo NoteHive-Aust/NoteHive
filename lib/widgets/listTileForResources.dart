@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Screens/resourceDetails.dart';
 
-ListTile ResourcesListTile({required String title,required String subtitle}) {
+ListTile ResourcesListTile({required BuildContext context,required String title,required String subtitle}) {
   return ListTile(
-    onTap: (){},
+    onTap: (){
+      Navigator.of(context).push(MaterialPageRoute(builder: ((context) => ResourceDetailsScreen())));
+    },
     trailing: Icon(Icons.chevron_right, size: 34),
     leading: Icon(Icons.description_outlined, size: 34),
     title: Text(title),

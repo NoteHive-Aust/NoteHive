@@ -144,7 +144,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   return SizedBox(height: 10);
                 },
                 itemBuilder: (context, index) {
-                  return ResourcesListTile(title: 'Data Structure - Unit 4',subtitle: 'CSE1203.Sem 5.Notes');
+                  return ResourcesListTile(context:context,title: 'Data Structure - Unit 4',subtitle: 'CSE1203.Sem 5.Notes');
                 },
               ),
             ],

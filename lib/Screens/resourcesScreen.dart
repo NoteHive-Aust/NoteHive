@@ -20,9 +20,18 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
       body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
           child: ListView.separated(
-            itemCount: 20,
-            separatorBuilder: (context,index)=>SizedBox(height: 10,),
-            itemBuilder: (context,index)=>ResourcesListTile(title: 'title', subtitle: 'subtitle'),)),
+            shrinkWrap: true,
+            //physics: const NeverScrollableScrollPhysics(),
+            //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
+            itemCount: 50,
+            separatorBuilder: (context, index) {
+              return SizedBox(height: 10);
+            },
+            itemBuilder: (context, index) {
+
+              return ResourcesListTile(context:context,title: 'Data Structure - Unit 4',subtitle: 'CSE1203.Sem 5.Notes');
+            },
+          ))
     );
   }
 }

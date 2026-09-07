@@ -42,6 +42,7 @@ class _PagecontrollerState extends State<Pagecontroller>
           Align(
             alignment: Alignment.bottomCenter,
             child: bottomNavigation(
+              context: context,
               selectedIndex: _tabController.index,
               onItemSelected: (index) {
                 setState(() {
