@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notehive/Screens/members.dart';
+import 'package:notehive/Screens/pendingApproval.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
@@ -45,6 +46,45 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'Data Structure | 1205',roomSubtitle: 'AUST University',)));
               }),
               LeadingTitleAndTailButton(context: context, title: 'Pending Approvals', buttonText: '3', method: (){}),
+              ListView.separated(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                //padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                itemCount: 3,
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 10);
+                },
+                itemBuilder: (context, index) {
+                  //final item = approvalList[index];
+                  return PendingApprovalCard(
+                    title: 'Data Structure',
+                    unit: 'Unit 6',
+                    subtitle: 'CSE1203 . Sem 5 . Notes',
+                    category: 'Notes',
+                    author: 'Mushfiq',
+                    status: 'rejected',
+                    onPreview: () {},
+                    onApprove: () {
+                      setState(() {
+                      //   if (item.status == 'approved') {
+                      //     item.status = 'pending';
+                      //   } else {
+                      //     item.status = 'approved';
+                      //   }
+                      });
+                    },
+                    onReject: () {
+                      setState(() {
+                        // if (item.status == 'rejected') {
+                        //   item.status = 'pending';
+                        // } else {
+                        //   item.status = 'rejected';
+                        // }
+                      });
+                    },
+                  );
+                },
+              ),
               Text('Send Announcement',style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -57,7 +97,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Color(0xff352E60).withOpacity(0.1)),
                 ),
-                child: TextField(
+                child: TextFormField(
                   maxLines: 5,
                   decoration: InputDecoration(
                     hintText: 'Write down the announcement...',
@@ -188,15 +228,17 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               text: 'Moderators',
               icon: Icons.admin_panel_settings_outlined,
             ),
+            // Divider(),
+            // DrawerWidgets(
+            //   method: () {},
+            //   text: 'Analytics',
+            //   icon: Icons.auto_graph_outlined,
+            // ),
             Divider(),
             DrawerWidgets(
-              method: () {},
-              text: 'Analytics',
-              icon: Icons.auto_graph_outlined,
-            ),
-            Divider(),
-            DrawerWidgets(
-              method: () {},
+              method: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>PendingApprovalScreen()));
+              },
               text: 'Pending Approval',
               icon: Icons.access_time,
             ),
