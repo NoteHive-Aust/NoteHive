@@ -81,7 +81,7 @@ class _JoinroomState extends State<Joinroom> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'roomName', roomSubtitle: "roomSubtitle")));
+                    //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'roomName', roomSubtitle: "roomSubtitle")));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor:  Color(0xFF8474F0),

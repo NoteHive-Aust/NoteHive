@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Structures/roomStructure.dart';
@@ -46,6 +50,36 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     'Batch 2023',
     'Batch 2022',
   ];
+  String generatedRoomCode() {
+    String code = "";
+    String chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    for (int i = 0; i < 6; i++) {
+      code += chars[random.nextInt(chars.length)];
+    }
+    return code;
+  }
+
+  late Room newRoom;
+  Future<void> createRoom() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final roomRef = firestore.collection('Rooms').doc();
+    newRoom = Room(
+      name: roomNameController.text,
+      schoolName: institutionController.text,
+      roomCode: generatedRoomCode(),
+      adminID: firestore.collection('Users').doc('abc'),
+      moderators: [],
+      members: [],
+      resources: [],
+      isPublic: !privateRoom,
+      categories: [],
+      Announcements: [],
+      pendingApprovals: [],
+    );
+    await roomRef.set(newRoom.toMap());
+  }
 
   @override
   void dispose() {
@@ -238,9 +272,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Color(0xFF352E60).withOpacity(0.1),
-                  ),
+                  border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
                 ),
                 child: TextField(
                   controller: descriptionController,
@@ -276,24 +308,33 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RoomScreenAdminOrMod(
-                          room: Room(
-                            name: roomNameController.text.isNotEmpty
-                                ? roomNameController.text
-                                : 'Data Structure | 1205',
-                            schoolName: institutionController.text.isNotEmpty
-                                ? institutionController.text
-                                : 'AUST University',
-                            roomCode: 'CR${(1000 + (DateTime.now().millisecondsSinceEpoch % 9000))}',
-                            admin: User(name: 'Shaher', memberAt: []),
-                            moderators: [],
-                          ),
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => RoomScreenAdminOrMod(
+                    //       room: Room(
+                    //         name: roomNameController.text.isNotEmpty
+                    //             ? roomNameController.text
+                    //             : 'Data Structure | 1205',
+                    //         schoolName: institutionController.text.isNotEmpty
+                    //             ? institutionController.text
+                    //             : 'AUST University',
+                    //         roomCode: 'CR${(1000 + (DateTime.now().millisecondsSinceEpoch % 9000))}',
+                    //         admin: User(name: 'Shaher', memberAt: []),
+                    //         moderators: [],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // );
+                    createRoom().then((_) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              RoomScreenAdminOrMod(room: newRoom, uid: 'abc'),
                         ),
-                      ),
-                    );
+                      );
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF8474F0),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "955380103331",
+    "project_id": "notehive-a7acc",
+    "storage_bucket": "notehive-a7acc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955380103331:android:17cae35fc3a57b38636716",
+        "android_client_info": {
+          "package_name": "com.example.notehive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAU5-jyBDuzB2vczXly0fecgrylq1VX45Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
