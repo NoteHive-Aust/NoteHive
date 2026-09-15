@@ -14,14 +14,15 @@ import '../widgets/floatingUploadButton.dart';
 
 class RoomScreenAdminOrMod extends StatefulWidget {
   final Room room;
-  const RoomScreenAdminOrMod({super.key, required this.room});
+  final String? uid;
+  const RoomScreenAdminOrMod({super.key, required this.room, this.uid});
 
   @override
   State<RoomScreenAdminOrMod> createState() => _RoomScreenAdminOrModState();
 }
 
 class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
-  late bool isAdmin = widget.room.admin.name == 'Shaheer';
+  late bool isAdmin = widget.room.adminID.id == widget.uid;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,15 +45,31 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 children: [Card3(), SizedBox(width: 10), Card4()],
               ),
               RoomCodeWidget(),
-              lombaButton(context: context,text: 'View Room as a Member',method: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'Data Structure | 1205',roomSubtitle: 'AUST University',)));
-              }),
-              LeadingTitleAndTailButton(context: context, title: 'Pending Approvals', buttonText: '3', method: (){}),
+              lombaButton(
+                context: context,
+                text: 'View Room as a Member',
+                method: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RoomScreen(room: widget.room),
+                    ),
+                  );
+                },
+              ),
+              LeadingTitleAndTailButton(
+                context: context,
+                title: 'Pending Approvals',
+                buttonText: widget.room.pendingApprovals.length.toString(),
+                method: () {},
+              ),
               ListView.separated(
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 //padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                itemCount: 3,
+                itemCount: widget.room.pendingApprovals.length < 3
+                    ? widget.room.pendingApprovals.length
+                    : 3,
                 separatorBuilder: (context, index) {
                   return SizedBox(height: 10);
                 },
@@ -68,11 +85,11 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                     onPreview: () {},
                     onApprove: () {
                       setState(() {
-                      //   if (item.status == 'approved') {
-                      //     item.status = 'pending';
-                      //   } else {
-                      //     item.status = 'approved';
-                      //   }
+                        //   if (item.status == 'approved') {
+                        //     item.status = 'pending';
+                        //   } else {
+                        //     item.status = 'approved';
+                        //   }
                       });
                     },
                     onReject: () {
@@ -87,15 +104,14 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                   );
                 },
               ),
-              Text('Send Announcement',style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),),
+              Text(
+                'Send Announcement',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
               Container(
                 padding: EdgeInsets.all(10),
                 margin: EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Color(0xff352E60).withOpacity(0.1)),
                 ),
@@ -110,11 +126,25 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                   ),
                 ),
               ),
-              lombaButton(context: context, text: 'Publish Announcement', method: (){}),
-              lombaButton(context: context, text: 'View Announcement', method: (){
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RoomAnnouncementPage()));
-              },bgColor: Colors.white,fgColor: Color(0xff352E60)),
-              SizedBox(height: 200,),
+              lombaButton(
+                context: context,
+                text: 'Publish Announcement',
+                method: () {},
+              ),
+              lombaButton(
+                context: context,
+                text: 'View Announcement',
+                method: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => RoomAnnouncementPage(),
+                    ),
+                  );
+                },
+                bgColor: Colors.white,
+                fgColor: Color(0xff352E60),
+              ),
+              SizedBox(height: 200),
             ],
           ),
         ),
@@ -122,22 +152,24 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
     );
   }
 
-  ElevatedButton lombaButton({required BuildContext context,required String text, required VoidCallback method,Color ?bgColor,Color ?fgColor}) {
+  ElevatedButton lombaButton({
+    required BuildContext context,
+    required String text,
+    required VoidCallback method,
+    Color? bgColor,
+    Color? fgColor,
+  }) {
     return ElevatedButton(
-            onPressed: method,
+      onPressed: method,
 
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              side: BorderSide(
-                color: Color(0xff352E60).withOpacity(0.1),
-              ),
-              backgroundColor: bgColor ?? Color(0xff8474F0),
-              foregroundColor: fgColor ??Colors.white,
-            ),
-            child: Text(text),
-          );
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        side: BorderSide(color: Color(0xff352E60).withOpacity(0.1)),
+        backgroundColor: bgColor ?? Color(0xff8474F0),
+        foregroundColor: fgColor ?? Colors.white,
+      ),
+      child: Text(text),
+    );
   }
 
   Container RoomCodeWidget() {
@@ -219,30 +251,41 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
             ),
             DrawerWidgets(
               method: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MembersScreen()));
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => MembersScreen()),
+                );
               },
               text: 'Members',
               icon: Icons.people_outline_rounded,
             ),
             Divider(),
-            isAdmin?
-            DrawerWidgets(
-              method: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ModeratorsScreen()));
-              },
-              text: 'Moderators',
-              icon: Icons.admin_panel_settings_outlined,
-            ):SizedBox(),
+            isAdmin
+                ? DrawerWidgets(
+                    method: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ModeratorsScreen(),
+                        ),
+                      );
+                    },
+                    text: 'Moderators',
+                    icon: Icons.admin_panel_settings_outlined,
+                  )
+                : SizedBox(),
             // Divider(),
             // DrawerWidgets(
             //   method: () {},
             //   text: 'Analytics',
             //   icon: Icons.auto_graph_outlined,
             // ),
-            isAdmin?Divider():SizedBox(),
+            isAdmin ? Divider() : SizedBox(),
             DrawerWidgets(
               method: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>PendingApprovalScreen()));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => PendingApprovalScreen(),
+                  ),
+                );
               },
               text: 'Pending Approval',
               icon: Icons.access_time,
@@ -276,9 +319,12 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
   Expanded Card4() {
     return Expanded(
       child: InkWell(
-        onTap: (){Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ModeratorsScreen()));},
+        onTap: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => ModeratorsScreen()));
+        },
         child: Container(
-
           decoration: BoxDecoration(
             color: Color(0xff8474F0),
             borderRadius: BorderRadius.circular(16),
@@ -294,7 +340,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '04',
+                    widget.room.moderators.length.toString(),
                     style: TextStyle(
                       fontSize: 40,
                       color: Colors.white,
@@ -423,7 +469,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '12',
+                  widget.room.pendingApprovals.length.toString(),
                   style: TextStyle(
                     fontSize: 40,
                     color: Color(0xff352E60),
@@ -550,20 +596,22 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
       ),
       actionsPadding: EdgeInsets.only(right: 20),
       actions: [
-        isAdmin?IconButton(
-          iconSize: 30,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => RoomSettings()),
-            );
-          },
-          icon: Icon(Icons.edit_note),
-          style: IconButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.black,
-          ),
-        ):SizedBox(),
+        isAdmin
+            ? IconButton(
+                iconSize: 30,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RoomSettings()),
+                  );
+                },
+                icon: Icon(Icons.edit_note),
+                style: IconButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.black,
+                ),
+              )
+            : SizedBox(),
         SizedBox(width: 10),
         Builder(
           builder: (context) {

@@ -77,20 +77,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     roomName: 'Box er Class',
                     members: 130,
                     method: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RoomScreenAdminOrMod(
-                            room: Room(
-                              name: 'Box er Class',
-                              schoolName: 'AUST University',
-                              roomCode: 'AJ48I3',
-                              admin: User(name: 'Shaheer', memberAt: []),
-                              moderators: [],
-                            ),
-                          ),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => RoomScreenAdminOrMod(
+                      //       room: Room(
+                      //         name: 'Box er Class',
+                      //         schoolName: 'AUST University',
+                      //         roomCode: 'AJ48I3',
+                      //         admin: User(name: 'Shaheer', memberAt: []),
+                      //         moderators: [],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // );
                     },
                   );
                 },
@@ -244,18 +244,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListTile(
       title: Text(
         label,
-        style: TextStyle(
-          fontSize: 21,
-          fontWeight: FontWeight.w800,
-        ),
+        style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800),
       ),
       trailing: OutlinedButton(
         onPressed: method,
         style: OutlinedButton.styleFrom(
           overlayColor: Color(0xff8474F0),
-          side: BorderSide(
-            color: Color(0xff352E60).withOpacity(0.1),
-          ),
+          side: BorderSide(color: Color(0xff352E60).withOpacity(0.1)),
           visualDensity: VisualDensity.compact,
         ),
         child: Text(
