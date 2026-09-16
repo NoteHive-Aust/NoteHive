@@ -39,26 +39,26 @@ class _LoginState extends State<Login> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLogo(),
-                const SizedBox(height: 64),
-                _buildHeader(context: context),
-                const SizedBox(height: 32),
-                _buildLabel('Email'),
-                const SizedBox(height: 8),
-                _buildEmailField(),
-                const SizedBox(height: 20),
-                _buildLabel('Password'),
-                const SizedBox(height: 8),
-                _buildPasswordField(),
-                _buildForgotPassword(),
-                const SizedBox(height: 8),
-                _buildSignInButton(context),
-                const SizedBox(height: 24),
-                _buildDivider(),
-                const SizedBox(height: 20),
-                _buildGoogleButton(),
-                const SizedBox(height: 14),
-                _buildGithubButton(),
+                logo(),
+                SizedBox(height: 64),
+                header(context: context),
+                SizedBox(height: 32),
+                label('Email'),
+                SizedBox(height: 8),
+                emailField(),
+                SizedBox(height: 20),
+                label('Password'),
+                SizedBox(height: 8),
+                passwordField(),
+                forgotPassword(),
+                SizedBox(height: 8),
+                signInButton(context),
+                SizedBox(height: 24),
+                divider(),
+                SizedBox(height: 20),
+                googleButton(),
+                SizedBox(height: 14),
+                githubButton(),
               ],
             ),
           ),
@@ -68,7 +68,7 @@ class _LoginState extends State<Login> {
   }
 }
 
-Widget _buildLogo() {
+Widget logo() {
   return Row(
     children: [
       ClipRRect(
@@ -80,35 +80,35 @@ Widget _buildLogo() {
           fit: BoxFit.contain,
         ),
       ),
-      const SizedBox(width: 10),
+      SizedBox(width: 10),
     ],
   );
 }
 
-Widget _buildHeader({required BuildContext context}) {
+Widget header({required BuildContext context}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-      const Text(
+      Text(
         'Welcome Back!',
         style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
       ),
-      const SizedBox(height: 8),
+      SizedBox(height: 8),
 
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Don\'t have an account?',
             style: TextStyle(fontSize: 14, color: Color(0xFF1A1730)),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           GestureDetector(
             onTap: () {
               // Handle sign up navigation
               Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupScreen()));
             },
-            child: const Text(
+            child: Text(
               'Sign Up',
               style: TextStyle(
                 fontSize: 14,
@@ -124,10 +124,10 @@ Widget _buildHeader({required BuildContext context}) {
   );
 }
 
-Widget _buildLabel(String text) {
+Widget label(String text) {
   return Text(
     text,
-    style: const TextStyle(
+    style: TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w600,
       color: Color(0xFF1A1730),
@@ -135,7 +135,7 @@ Widget _buildLabel(String text) {
   );
 }
 
-Widget _buildEmailField() {
+Widget emailField() {
   return Container( 
     child: TextFormField(
       decoration:  InputDecoration(
@@ -159,7 +159,7 @@ Widget _buildEmailField() {
   
 }
 
-Widget _buildPasswordField() {
+Widget passwordField() {
   return Container(
     child: TextFormField(
       obscureText: true,
@@ -181,7 +181,7 @@ Widget _buildPasswordField() {
   );
 }
 
-Widget _buildForgotPassword() {
+Widget forgotPassword() {
   return Align(
     alignment: Alignment.centerRight,
     child: TextButton(
@@ -200,7 +200,7 @@ Widget _buildForgotPassword() {
   );
 }
 
-Widget _buildSignInButton(BuildContext context) {
+Widget signInButton(BuildContext context) {
   return SizedBox(
     width: double.infinity,
     child: ElevatedButton(
@@ -212,11 +212,11 @@ Widget _buildSignInButton(BuildContext context) {
         );
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF8474F0),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        backgroundColor:  Color(0xFF8474F0),
+        padding: EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       ),
-      child: const Text(
+      child:  Text(
         'Sign In',
         style: TextStyle(
           fontSize: 16,
@@ -228,22 +228,22 @@ Widget _buildSignInButton(BuildContext context) {
   );
 }
 
-Widget _buildDivider() {
+Widget divider() {
   return Row(
     children: [
       Expanded(child: Divider(color: Colors.grey[400], thickness: 1)),
-      const SizedBox(width: 8),
-      const Text(
+       SizedBox(width: 8),
+       Text(
         'or',
         style: TextStyle(fontSize: 14, color: Color(0xFF1A1730)),
       ),
-      const SizedBox(width: 8),
+       SizedBox(width: 8),
       Expanded(child: Divider(color: Colors.grey[400], thickness: 1)),
     ],
   );
 }
 
-Widget _buildGoogleButton() {
+Widget googleButton() {
   return SizedBox(
     width: double.infinity,
     child: OutlinedButton(
@@ -251,8 +251,8 @@ Widget _buildGoogleButton() {
         // Handle Google sign in logic
       },
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Color(0xFF352E60)),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        side:  BorderSide(color: Color(0xFF352E60)),
+        padding:  EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       ),
       child: Row(
@@ -263,8 +263,8 @@ Widget _buildGoogleButton() {
             width: 24,
             height: 24,
           ),
-          const SizedBox(width: 8),
-          const Text(
+           SizedBox(width: 8),
+           Text(
             'Sign in with Google',
             style: TextStyle(
               fontSize: 16,
@@ -278,7 +278,7 @@ Widget _buildGoogleButton() {
   );
 }
 
-Widget _buildGithubButton() {
+Widget githubButton() {
   return SizedBox(
     width: double.infinity,
     child: OutlinedButton(
@@ -286,17 +286,17 @@ Widget _buildGithubButton() {
         // Handle GitHub sign in logic
       },
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Color(0xFF352E60)),
+        side:  BorderSide(color: Color(0xFF352E60)),
         backgroundColor: Color(0xFF000000),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding:  EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset('assets/mdi_github.png', width: 24, height: 24),
-          const SizedBox(width: 8),
-          const Text(
+           SizedBox(width: 8),
+           Text(
             'Sign in with GitHub',
             style: TextStyle(
               fontSize: 16,
