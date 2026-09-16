@@ -1,10 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getMyRooms.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/Structures/userStructure.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
 
@@ -16,7 +18,13 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
-  bool isAdmin=false;
+  String uid = "abc";
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,18 +44,63 @@ class _HomescreenState extends State<Homescreen> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, item) {
-                  return listItemCard(roomName: 'Data Structure | 1205',
-                      universityName: 'AUST University',
-                      members: 118,
-                      resources: 20,
-                      isPrivate: false,
-                      method: () {
-                      isAdmin?Navigator.push(context, MaterialPageRoute(builder: (context)=>RoomScreenAdminOrMod(room: Room(name: 'Data Structure | 1205', schoolName: 'AUST University',roomCode: 'AJ48I3', admin: User(name: 'Shaheer', memberAt: []), moderators: []),))):
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'Data Structure | 1205',roomSubtitle: 'AUST University',)));
-                      });
+              child: FutureBuilder<QuerySnapshot>(
+                future: getMyRooms(),
+
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Something went wrong'));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text('No documents found.'));
+                  }
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, item) {
+                      Room room = Room.fromMap(
+                        snapshot.data!.docs[item].data()
+                            as Map<String, dynamic>,
+                      );
+                      bool isAdmin = room.adminID.id == uid;
+                      if (!isAdmin) {
+                        for (var moderator in room.moderators) {
+                          if (moderator.id == uid) {
+                            isAdmin = true;
+                            break;
+                          }
+                        }
+                      }
+                      return listItemCard(
+                        roomName: room.name,
+                        universityName: room.schoolName,
+                        members: room.members.length.toInt(),
+                        resources: room.resources.length.toInt(),
+                        isPrivate: !room.isPublic,
+                        method: () {
+                          isAdmin
+                              ? Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RoomScreenAdminOrMod(
+                                      room: room,
+                                      uid: uid,
+                                    ),
+                                  ),
+                                )
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        RoomScreen(room: room),
+                                  ),
+                                );
+                        },
+                      );
+                    },
+                  );
                 },
               ),
             ),
@@ -76,13 +129,11 @@ class _HomescreenState extends State<Homescreen> {
         onTap: method,
 
         //tileColor: Colors.white,
-        title: Text(
-          roomName,
-        ),
+        title: Text(roomName),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(universityName,),
+            Text(universityName),
             SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -96,10 +147,10 @@ class _HomescreenState extends State<Homescreen> {
                       style: TextStyle(
                         //ontSize: 12,
                         fontWeight: FontWeight.bold,
-                          color: Color(0xff352E60)
+                        color: Color(0xff352E60),
                       ),
                     ),
-                    Text(" Members",),
+                    Text(" Members"),
                   ],
                 ),
                 SizedBox(width: 10),
@@ -111,7 +162,7 @@ class _HomescreenState extends State<Homescreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xff352E60)
+                        color: Color(0xff352E60),
                       ),
                     ),
                     Text(" Resources", style: TextStyle(fontSize: 12)),
@@ -134,8 +185,10 @@ class _HomescreenState extends State<Homescreen> {
                           ? Icon(Icons.lock_outline_rounded, size: 12)
                           : Icon(Icons.lock_open_rounded, size: 12),
                       SizedBox(width: 2),
-                      Text(" ${isPrivate ? "Private" : "Public"}",
-                          style: TextStyle(fontSize: 11)),
+                      Text(
+                        " ${isPrivate ? "Private" : "Public"}",
+                        style: TextStyle(fontSize: 11),
+                      ),
                     ],
                   ),
                 ),
@@ -159,9 +212,7 @@ class _HomescreenState extends State<Homescreen> {
         ),
       ),
       title: InkWell(
-        onTap: (){
-
-        },
+        onTap: () {},
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -192,9 +243,11 @@ class _HomescreenState extends State<Homescreen> {
           ),
         ),
         SizedBox(width: 10),
-        NotificationButtonForAppBar(context: context,screen: NotificationsScreen()),
+        NotificationButtonForAppBar(
+          context: context,
+          screen: NotificationsScreen(),
+        ),
       ],
     );
   }
-
 }

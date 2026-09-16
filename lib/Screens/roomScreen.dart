@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/resourcesScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
+import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/cards.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
@@ -12,26 +13,14 @@ import 'package:notehive/widgets/searchBox.dart';
 import '../widgets/floatingUploadButton.dart';
 
 class RoomScreen extends StatefulWidget {
-  const RoomScreen({
-    super.key,
-    required String roomName,
-    required String roomSubtitle,
-  });
+  final Room room;
+  const RoomScreen({super.key, required this.room});
 
   @override
   State<RoomScreen> createState() => _RoomScreenState();
 }
 
 class _RoomScreenState extends State<RoomScreen> {
-  List<String> categories = [
-    "All",
-    "Science",
-    "Math",
-    "English",
-    "History",
-    "Programming",
-    "Physics",
-  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +35,7 @@ class _RoomScreenState extends State<RoomScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Data Structure | 1205',
+              widget.room.name,
               style: TextStyle(
                 color: Color(0xff1A1730),
                 fontSize: 18,
@@ -54,7 +43,7 @@ class _RoomScreenState extends State<RoomScreen> {
               ),
             ),
             Text(
-              'Ahsanullah University of Science & Technology',
+              widget.room.schoolName,
               style: TextStyle(
                 overflow: TextOverflow.ellipsis,
                 fontFamily: 'paragraph',
@@ -64,7 +53,12 @@ class _RoomScreenState extends State<RoomScreen> {
             ),
           ],
         ),
-        actions: [NotificationButtonForAppBar(context: context,screen: RoomAnnouncementPage())],
+        actions: [
+          NotificationButtonForAppBar(
+            context: context,
+            screen: RoomAnnouncementPage(),
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -82,7 +76,7 @@ class _RoomScreenState extends State<RoomScreen> {
               SizedBox(height: 5),
               Wrap(
                 spacing: 5,
-                children: List.generate(categories.length, (index) {
+                children: List.generate(widget.room.categories.length, (index) {
                   return OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       iconSize: 0,
@@ -90,9 +84,15 @@ class _RoomScreenState extends State<RoomScreen> {
                       //fixedSize: Size.fromHeight(20)
                     ),
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ResourcesScreen(filtered: categories[index],)));
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ResourcesScreen(
+                            filtered: widget.room.categories[index],
+                          ),
+                        ),
+                      );
                     },
-                    child: Text(categories[index]),
+                    child: Text(widget.room.categories[index]),
                   );
                 }),
               ),
@@ -134,7 +134,9 @@ class _RoomScreenState extends State<RoomScreen> {
                 title: 'Recent Resources',
                 buttonText: 'See All',
                 method: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ResourcesScreen()));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => ResourcesScreen()),
+                  );
                 },
               ),
               SizedBox(height: 10),
@@ -147,7 +149,11 @@ class _RoomScreenState extends State<RoomScreen> {
                   return SizedBox(height: 10);
                 },
                 itemBuilder: (context, index) {
-                  return ResourcesListTile(context:context,title: 'Data Structure - Unit 4',subtitle: 'CSE1203.Sem 5.Notes');
+                  return ResourcesListTile(
+                    context: context,
+                    title: 'Data Structure - Unit 4',
+                    subtitle: 'CSE1203.Sem 5.Notes',
+                  );
                 },
               ),
             ],
@@ -156,7 +162,4 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
   }
-
-
-
 }

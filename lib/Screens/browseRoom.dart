@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/SearchRooms.dart';
 import 'package:notehive/Screens/joinRoom.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
+import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/listTileForBrowseRoom.dart';
 import 'package:notehive/widgets/searchBox.dart';
@@ -22,7 +25,7 @@ class _BrowseroomState extends State<Browseroom> {
         children: [
           Container(
             color: Colors.white,
-            padding: EdgeInsets.only(top: 40,left: 20,right: 20,bottom: 10),
+            padding: EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -53,14 +56,35 @@ class _BrowseroomState extends State<Browseroom> {
           ),
 
           Expanded(
-            child: ListView.separated(
-              padding:EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              itemCount: 15,
-              itemBuilder: (context, index) {
-                return listTileforBrowseRoom(context: context,title: 'Data Structure | 1205',member: 15);
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return SizedBox(height: 10);
+            child: FutureBuilder<QuerySnapshot>(
+              future: fetchAvailableRooms(),
+              builder: (context, Snapshot) {
+                if (Snapshot.hasError) {
+                  return Center(child: Text('Something went wrong'));
+                }
+                if (Snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (Snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No Public rooms found.'));
+                }
+                return ListView.separated(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  itemCount: Snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    Room roomData = Room.fromMap(
+                      Snapshot.data!.docs[index].data() as Map<String, dynamic>,
+                    );
+                    return listTileforBrowseRoom(
+                      context: context,
+                      title: roomData.name,
+                      member: roomData.members.length.toDouble(),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox(height: 10);
+                  },
+                );
               },
             ),
           ),
@@ -68,8 +92,6 @@ class _BrowseroomState extends State<Browseroom> {
       ),
     );
   }
-
-
 
   AppBar appbar() {
     return AppBar(
@@ -96,12 +118,22 @@ class _BrowseroomState extends State<Browseroom> {
           ),
           Text(
             "NUET",
-            style: TextStyle(fontSize: 12, color: Color(0xFF352E60),fontWeight: FontWeight.normal,fontFamily: 'paragraph'),
+            style: TextStyle(
+              fontSize: 12,
+              color: Color(0xFF352E60),
+              fontWeight: FontWeight.normal,
+              fontFamily: 'paragraph',
+            ),
           ),
         ],
       ),
       actionsPadding: EdgeInsets.only(right: 20),
-      actions: [NotificationButtonForAppBar(context: context,screen: NotificationsScreen())],
+      actions: [
+        NotificationButtonForAppBar(
+          context: context,
+          screen: NotificationsScreen(),
+        ),
+      ],
     );
   }
 }
