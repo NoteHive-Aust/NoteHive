@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/Structures/resourcesStructure.dart';
 import '../widgets/leadingbackButton.dart';
 
 class ResourceDetailsScreen extends StatefulWidget {
-  const ResourceDetailsScreen({super.key});
+  final Resource resource;
+  const ResourceDetailsScreen({super.key, required this.resource});
 
   @override
   State<ResourceDetailsScreen> createState() => _ResourceDetailsScreenState();
@@ -102,8 +104,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Data Structure - Unit 4 Complete Notes',
+        Text(
+          widget.resource.title,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -119,8 +121,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
           ),
-          child: const Text(
-            'Notes',
+          child: Text(
+            widget.resource.category,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -145,8 +147,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Rahim Ibrahim',
+              Text(
+                widget.resource.authorName,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -155,7 +157,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
               ),
               const SizedBox(height: 2),
               Text(
-                'Ahsanullah University',
+                widget.resource.authorSchoolName,
                 style: TextStyle(
                   fontSize: 13,
                   fontFamily: 'paragraph',
@@ -179,7 +181,9 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                 ),
               ),
               TextSpan(
-                text: '2d ago',
+                text: DateTime.now().difference(widget.resource.time).inDays < 1
+                    ? '${DateTime.now().difference(widget.resource.time).inHours}h ago'
+                    : '${DateTime.now().difference(widget.resource.time).inDays}d ago',
                 style: TextStyle(
                   fontSize: 13,
                   color: const Color(0xFF352E60).withOpacity(0.6),
@@ -206,7 +210,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Comprehensive notes covering trees, graphs, and dynamic programming with solved examples from previous exams. Includes complexity analysis tables.',
+          widget.resource.description,
           style: TextStyle(
             fontSize: 14,
             fontFamily: 'paragraph',
@@ -231,8 +235,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   'Downloads',
                   style: TextStyle(
                     fontSize: 18,
@@ -241,8 +245,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                   ),
                 ),
                 Text(
-                  '340',
-                  style: TextStyle(
+                  widget.resource.downloads.toString(),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1A1730),
@@ -260,7 +264,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Text(
                   'Views',
                   style: TextStyle(
@@ -270,7 +274,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                   ),
                 ),
                 Text(
-                  '1.2k',
+                  widget.resource.views.toString(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -345,8 +349,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Comments (12)',
+            Text(
+              'Comments (${widget.resource.comments.length})',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -374,10 +378,10 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           ],
         ),
         const SizedBox(height: 14),
-        _buildCommentCard(),
-        const SizedBox(height: 12),
-        _buildCommentCard(),
-        const SizedBox(height: 20),
+        // _buildCommentCard(comment: widget.resource.comments[0]),
+        // const SizedBox(height: 12),
+        // _buildCommentCard(comment: widget.resource.comments[0]),
+        // const SizedBox(height: 20),
         Row(
           children: [
             const CircleAvatar(
@@ -414,7 +418,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     );
   }
 
-  Widget _buildCommentCard() {
+  Widget _buildCommentCard({required Comment comment}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -440,8 +444,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Rahim',
+                    Text(
+                      comment.name,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -449,7 +453,9 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                       ),
                     ),
                     Text(
-                      '1h ago',
+                      DateTime.now().difference(comment.time).inDays < 1
+                          ? '${DateTime.now().difference(comment.time).inHours}h ago'
+                          : '${DateTime.now().difference(comment.time).inDays}d ago',
                       style: TextStyle(
                         fontSize: 12,
                         fontFamily: 'paragraph',
@@ -460,7 +466,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Comprehensive notes covering trees, graphs, and dynamic programming with solved examples from previous exams. Includes complexity analysis tables.',
+                  comment.comment,
                   style: TextStyle(
                     fontSize: 13,
                     fontFamily: 'paragraph',
