@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Structures/resourcesStructure.dart';
+import '../FirebaseOperations/getRoomResources.dart';
 import '../widgets/leadingbackButton.dart';
 
 class ResourceDetailsScreen extends StatefulWidget {
   final Resource resource;
-  const ResourceDetailsScreen({super.key, required this.resource});
+  final String resourceId;
+  const ResourceDetailsScreen({
+    super.key,
+    required this.resource,
+    required this.resourceId,
+  });
 
   @override
   State<ResourceDetailsScreen> createState() => _ResourceDetailsScreenState();
@@ -379,6 +385,29 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
         ),
         const SizedBox(height: 14),
         // _buildCommentCard(comment: widget.resource.comments[0]),
+        FutureBuilder(
+          future: getComments(resourceId: widget.resourceId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) => _buildCommentCard(
+                comment: Comment.fromMap(
+                  snapshot.data!.docs[index].data() as Map<String, dynamic>,
+                ),
+              ),
+              separatorBuilder: (context, index) => SizedBox(height: 12),
+              itemCount: snapshot.data!.docs.length,
+            );
+          },
+        ),
+
         // const SizedBox(height: 12),
         // _buildCommentCard(comment: widget.resource.comments[0]),
         // const SizedBox(height: 20),

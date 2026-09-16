@@ -109,6 +109,8 @@ class _RoomScreenState extends State<RoomScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ResourcesScreen(
+                            roomId: widget.roomId,
+                            room: widget.room,
                             filtered: widget.room.categories[index],
                           ),
                         ),
@@ -157,7 +159,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 buttonText: 'See All',
                 method: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => ResourcesScreen()),
+                    MaterialPageRoute(builder: (context) => ResourcesScreen(room: widget.room, roomId: widget.roomId,)),
                   );
                 },
               ),
@@ -187,7 +189,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         resource: Resource.fromMap(
                           snapshot.data!.docs[index].data()
                               as Map<String, dynamic>,
-                        ),
+                        ), resourceID: snapshot.data!.docs[index].id,
                       );
                     },
                   );
