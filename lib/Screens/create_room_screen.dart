@@ -77,6 +77,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
       categories: [],
       Announcements: [],
       pendingApprovals: [],
+      onlyModeratorUpload: onlyModeratorUpload,
     );
     await roomRef.set(newRoom.toMap());
   }
