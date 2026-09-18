@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:notehive/Screens/startingScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-void main() async{
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -26,25 +25,20 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(backgroundColor: Colors.white),
         textTheme: TextTheme(
           titleLarge: TextStyle(
-                  fontFamily: 'Heading',
-                  color: Color(0xff1A1730),
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis,
-          )
+            fontFamily: 'Heading',
+            color: Color(0xff1A1730),
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         iconButtonTheme: IconButtonThemeData(
-
-          style: IconButton.styleFrom(
-            overlayColor: Color(0xff8474F0),
-
-          )
+          style: IconButton.styleFrom(overlayColor: Color(0xff8474F0)),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
-
           style: OutlinedButton.styleFrom(
             overlayColor: Color(0xff8474F0),
             side: BorderSide(color: Color(0xFF352E60).withOpacity(0.1)),
-            visualDensity: VisualDensity.compact,
+          visualDensity: VisualDensity.compact,
           ),
         ),
         listTileTheme: ListTileThemeData(
@@ -73,5 +67,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

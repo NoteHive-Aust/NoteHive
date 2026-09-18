@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/auth_services.dart';
 import 'package:notehive/Screens/homeScreen.dart';
 import 'package:notehive/Screens/login.dart';
 
@@ -26,6 +27,18 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+
+  void handleSignUp() async {
+  try {
+    await authServices.value.createUser(email: emailController.text, password :passwordController.text,);
+
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Homescreen()));
+  } catch (e) {
+    // Handle error
+    print('Error creating user: $e');
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,37 +57,37 @@ class _SignupScreenState extends State<SignupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLogo(),
+                logo(),
                 SizedBox(height: 32),
-                _buildHeader(context),
+                header(context),
                 SizedBox(height: 24),
-                Center(child: _buildPhotoPicker()),
+                Center(child: photoPicker()),
                 SizedBox(height: 24),
-                _buildLabel('Full Name'),
+                label('Full Name'),
                 SizedBox(height: 8),
-                _buildNameField(),
+                nameField(),
                 SizedBox(height: 20),
-                _buildLabel('Email'),
+                label('Email'),
                 SizedBox(height: 8),
-                _buildEmailField(),
+                emailField(),
                 SizedBox(height: 20),
-                _buildLabel('Password'),
+                label('Password'),
                 SizedBox(height: 8),
-                _buildPasswordField(),
+                passwordField(),
                 SizedBox(height: 8),
-                _buildConfirmPasswordField(),
+                confirmPasswordField(),
                 SizedBox(height: 20),
-                _buildLabel('Institution/ University'),
+                label('Institution/ University'),
                 SizedBox(height: 8),
-                _buildInstitutionField(),
+                institutionField(),
                 SizedBox(height: 24),
-                _buildSignUpButton(context),
+                signUpButton(),
                 SizedBox(height: 24),
-                _buildDivider(),
+                divider(),
                 SizedBox(height: 20),
-                _buildGoogleButton(),
+                googleButton(),
                 SizedBox(height: 14),
-                _buildGithubButton(),
+                githubButton(),
               ],
             ),
           ),
@@ -83,7 +96,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildNameField() {
+  Widget nameField() {
     return TextFormField(
       controller: nameController,
       decoration: InputDecoration(
@@ -94,7 +107,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget emailField() {
     return TextFormField(
       controller: emailController,
       decoration: InputDecoration(
@@ -109,7 +122,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget passwordField() {
     return TextFormField(
       controller: passwordController,
       decoration: InputDecoration(
@@ -121,7 +134,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildConfirmPasswordField() {
+  Widget confirmPasswordField() {
     return TextFormField(
       controller: confirmPasswordController,
       decoration: InputDecoration(
@@ -133,7 +146,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildInstitutionField() {
+  Widget institutionField() {
     return TextFormField(
       controller: institutionController,
       decoration: InputDecoration(
@@ -143,9 +156,9 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
-}
 
-Widget _buildLogo() {
+
+Widget logo() {
   return Row(
     children: [
       ClipRRect(
@@ -162,7 +175,7 @@ Widget _buildLogo() {
   );
 }
 
-Widget _buildHeader(BuildContext context) {
+Widget header(BuildContext context) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
@@ -202,7 +215,7 @@ Widget _buildHeader(BuildContext context) {
   );
 }
 
-Widget _buildPhotoPicker() {
+Widget photoPicker() {
   return Column(
     children: [
       Container(
@@ -228,7 +241,7 @@ Widget _buildPhotoPicker() {
   );
 }
 
-Widget _buildLabel(String text) {
+Widget label(String text) {
   return Text(
     text,
     style:  TextStyle(
@@ -239,16 +252,17 @@ Widget _buildLabel(String text) {
   );
 }
 
-Widget _buildSignUpButton(BuildContext context) {
+
+Widget signUpButton() {
   return SizedBox(
     width: double.infinity,
     child: ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  Homescreen()),
-        );
-      },
+      onPressed: () 
+        {
+         handleSignUp();
+         
+        },
+      
       style: ElevatedButton.styleFrom(
         backgroundColor:  Color(0xFF8474F0),
         padding:  EdgeInsets.symmetric(vertical: 16),
@@ -266,7 +280,7 @@ Widget _buildSignUpButton(BuildContext context) {
   );
 }
 
-Widget _buildDivider() {
+Widget divider() {
   return Row(
     children: [
       Expanded(child: Divider(color: Colors.grey[400], thickness: 1)),
@@ -278,7 +292,7 @@ Widget _buildDivider() {
   );
 }
 
-Widget _buildGoogleButton() {
+Widget googleButton() {
   return SizedBox(
     width: double.infinity,
     child: OutlinedButton(
@@ -313,7 +327,7 @@ Widget _buildGoogleButton() {
   );
 }
 
-Widget _buildGithubButton() {
+Widget githubButton() {
   return SizedBox(
     width: double.infinity,
     child: OutlinedButton(
@@ -343,4 +357,5 @@ Widget _buildGithubButton() {
       ),
     ),
   );
+}
 }
