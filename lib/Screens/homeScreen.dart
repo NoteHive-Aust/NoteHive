@@ -44,9 +44,8 @@ class _HomescreenState extends State<Homescreen> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<QuerySnapshot>(
-                future: getMyRooms(),
-
+              child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                future: getMyRooms(uid),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(child: Text('Something went wrong'));
@@ -93,8 +92,10 @@ class _HomescreenState extends State<Homescreen> {
                               : Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        RoomScreen(room: room),
+                                    builder: (context) => RoomScreen(
+                                      room: room,
+                                      roomId: snapshot.data!.docs[item].id,
+                                    ),
                                   ),
                                 );
                         },

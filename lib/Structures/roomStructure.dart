@@ -13,6 +13,7 @@ class Room {
   List<dynamic> categories;
   List<DocumentReference<Map<String, dynamic>>> Announcements;
   List<DocumentReference<Map<String, dynamic>>> pendingApprovals = [];
+  final bool onlyModeratorUpload;
   Room({
     required this.name,
     required this.schoolName,
@@ -25,6 +26,7 @@ class Room {
     required this.categories,
     required this.Announcements,
     required this.pendingApprovals,
+    required this.onlyModeratorUpload,
   });
   factory Room.fromMap(Map<String, dynamic> data) {
     return Room(
@@ -49,6 +51,7 @@ class Room {
       pendingApprovals: List<DocumentReference<Map<String, dynamic>>>.from(
         data['PendingApprovals'] ?? [],
       ),
+      onlyModeratorUpload: data["OnlyModeratorUpload"],
     );
   }
   Map<String, dynamic> toMap() {
