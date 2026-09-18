@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notehive/Screens/login.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
+import 'package:notehive/Screens/signup.dart';
+import 'package:notehive/Screens/startingScreen.dart';
 
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
@@ -15,17 +19,27 @@ class SettingScreen extends StatefulWidget {
 
 class _SettingScreenState extends State<SettingScreen> {
   bool pushNotification = false;
+  TextEditingController currentPasswordController = TextEditingController();
+  TextEditingController newPasswordController = TextEditingController();
+  TextEditingController confirmNewPasswordController = TextEditingController();
+  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings", style: TextStyle(
-            fontFamily: 'Heading',
-            fontWeight: FontWeight.bold)),
+        title: Text(
+          "Settings",
+          style: TextStyle(fontFamily: 'Heading', fontWeight: FontWeight.bold),
+        ),
         automaticallyImplyLeading: false,
         actionsPadding: EdgeInsets.only(right: 20),
-        actions: [NotificationButtonForAppBar(context: context,screen: NotificationsScreen())],
+        actions: [
+          NotificationButtonForAppBar(
+            context: context,
+            screen: NotificationsScreen(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -35,19 +49,16 @@ class _SettingScreenState extends State<SettingScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
 
               children: [
-                SearchBox(lebel: "Search for Settings"),
+                SearchBox(lebel: "Search for Settings", controller: TextEditingController(), onChanged: () {},),
                 //SizedBox(height: 20,),
                 ProfileEditTab(),
-                SizedBox(height: 20,),
+                SizedBox(height: 20),
                 PushNotificationToggle(),
                 SizedBox(height: 20),
                 Text("Account", style: TextStyle(color: Color(0xff352E60))),
                 AccountSettingsTab(),
                 SizedBox(height: 20),
-                Text(
-                  "Appearance",
-                  style: TextStyle(color: Color(0xff352E60)),
-                ),
+                Text("Appearance", style: TextStyle(color: Color(0xff352E60))),
                 ApearanceSettingsTab(),
                 //SizedBox(height: 20,),
                 SignoutDeleteTab(),
@@ -72,18 +83,29 @@ class _SettingScreenState extends State<SettingScreen> {
       child: Column(
         children: [
           Tiles(
+            method: () {},
             icon: Icons.question_mark_outlined,
             title: "Help & FAQ",
             tail: '',
           ),
           Divider(),
           Tiles(
+            method: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => Container(
+                  height: 200,
+                  child: Center(child: Text("App Version: 1.0.0")),
+                ),
+              );
+            },
             icon: Icons.phone_android_rounded,
             title: "App Version",
             tail: '',
           ),
           Divider(),
           Tiles(
+            method: () {},
             icon: Icons.insert_drive_file_outlined,
             title: "Terms & Condition",
             tail: '',
@@ -103,11 +125,30 @@ class _SettingScreenState extends State<SettingScreen> {
       ),
       child: Column(
         children: [
-          Tiles(icon: Icons.logout_outlined, title: "Sign Out", tail: ''),
+          Tiles(
+            icon: Icons.logout_outlined,
+            title: "Sign Out",
+            tail: '',
+            method: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => StartingScreen()),
+                (route) => false,
+              );
+            },
+          ),
           Divider(),
           InkWell(
             splashColor: Color(0xff9689F2).withOpacity(0.2),
-            onTap: () {},
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => StartingScreen()),
+                (route) => false,
+              ); //user database thekeo remove kora lagbe
+            },
             child: ListTile(
               shape: RoundedRectangleBorder(),
               contentPadding: EdgeInsets.all(0),
@@ -151,6 +192,146 @@ class _SettingScreenState extends State<SettingScreen> {
       child: Column(
         children: [
           Tiles(
+            method: () {
+              showDialog(
+                context: context,
+                builder: (context) => Dialog(
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: Text(
+                            "Change Password",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextFormField(
+                          controller: currentPasswordController,
+                          decoration: InputDecoration(
+                            labelText: 'Current Password',
+
+                            //enabledBorder: InputBorder.none,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                          ),
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          controller: newPasswordController,
+                          decoration: InputDecoration(
+                            labelText: 'New Password',
+                            //enabledBorder: InputBorder.none,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                          ),
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          controller: confirmNewPasswordController,
+                          decoration: InputDecoration(
+                            labelText: 'Confirm New Password',
+                            // enabledBorder: InputBorder.none,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                          ),
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (newPasswordController.text !=
+                                confirmNewPasswordController.text) {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'New password and confirm password do not match.',
+                                  ),
+                                ),
+                              );
+                              newPasswordController.clear();
+                              confirmNewPasswordController.clear();
+                              currentPasswordController.clear();
+                              return;
+                            }
+                            try {
+                              final user = FirebaseAuth.instance.currentUser;
+                              AuthCredential credential =
+                                  EmailAuthProvider.credential(
+                                    email: user!.email!,
+                                    password: currentPasswordController.text,
+                                  );
+                              await user.reauthenticateWithCredential(
+                                credential,
+                              );
+
+                              await user.updatePassword(
+                                newPasswordController.text,
+                              );
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Password changed successfully.',
+                                  ),
+                                ),
+                              );
+                              FirebaseAuth.instance.signOut();
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Login(),
+                                ),
+                                (route) => false,
+                              );
+                            } on FirebaseAuthException catch (e) {
+                              if (e.code == 'wrong-password') {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Current password is incorrect.',
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${e.message}'),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Error: ${e.toString()}'),
+                                ),
+                              );
+                            }
+                            newPasswordController.clear();
+                            confirmNewPasswordController.clear();
+                            currentPasswordController.clear();
+                          },
+                          child: Text('Change Password'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
             icon: Icons.lock_outline_rounded,
             title: "Change Password",
             tail: "",
@@ -158,15 +339,17 @@ class _SettingScreenState extends State<SettingScreen> {
           Divider(),
 
           Tiles(
+            method: () {},
             icon: Icons.shield_outlined,
             title: "Two-factor Authentication",
             tail: "Off",
           ),
           Divider(),
           Tiles(
+            method: () {},
             icon: Icons.mail_outline_rounded,
             title: "Email Address",
-            tail: "example@gmail.com",
+            tail: user?.email ?? '',
           ),
         ],
       ),
@@ -183,9 +366,15 @@ class _SettingScreenState extends State<SettingScreen> {
       ),
       child: Column(
         children: [
-          Tiles(icon: Icons.light_mode_outlined, title: "Theme", tail: "Light"),
+          Tiles(
+            icon: Icons.light_mode_outlined,
+            title: "Theme",
+            tail: "Light",
+            method: () {},
+          ),
           Divider(),
           Tiles(
+            method: () {},
             icon: Icons.translate_outlined,
             title: "Language",
             tail: "English",
@@ -199,9 +388,10 @@ class _SettingScreenState extends State<SettingScreen> {
     required IconData icon,
     required String title,
     required String tail,
+    required VoidCallback method,
   }) {
     return InkWell(
-      onTap: () {},
+      onTap: method,
       child: ListTile(
         shape: RoundedRectangleBorder(
           //borderRadius: BorderRadius.circular(16),
@@ -219,10 +409,7 @@ class _SettingScreenState extends State<SettingScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(
-                tail,
-                overflow: TextOverflow.ellipsis,
-              ),
+              Text(tail, overflow: TextOverflow.ellipsis),
               Icon(
                 Icons.keyboard_arrow_right,
                 size: 28,
@@ -239,7 +426,7 @@ class _SettingScreenState extends State<SettingScreen> {
     return ListTile(
       // contentPadding: EdgeInsets.all(0),
       leading: Icon(Icons.notifications_none),
-      title: Text("Push Notification",style: TextStyle(fontSize: 14)),
+      title: Text("Push Notification", style: TextStyle(fontSize: 14)),
       trailing: Switch.adaptive(
         // activeColor: Color(0xff8474F0),
         activeThumbColor: Colors.white,

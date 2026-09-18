@@ -67,6 +67,7 @@ class Room {
       'Categories': categories,
       'Announcements': Announcements,
       'PendingApprovals': pendingApprovals,
+      'OnlyModeratorUpload':onlyModeratorUpload,
     };
   }
 }

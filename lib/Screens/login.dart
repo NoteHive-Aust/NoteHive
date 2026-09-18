@@ -26,7 +26,7 @@ class _LoginState extends State<Login> {
     try {
       await authServices.value.signIn(email: emailController.text.trim(), password :passwordController.text,);
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Homescreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Pagecontroller()));
     } catch (e) {
       // Handle error
       print('Error creating user: $e');

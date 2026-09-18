@@ -1,16 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/startingScreen.dart';
+import 'package:notehive/Screens/pageController.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  final bool isLoggedIn = FirebaseAuth.instance.currentUser != null;
+  runApp(MyApp(isloggedIn: isLoggedIn,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isloggedIn;
+  const MyApp({super.key,required this.isloggedIn});
+
 
   // This widget is the root of your application.
   @override
@@ -63,7 +68,7 @@ class MyApp extends StatelessWidget {
           contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         ),
       ),
-      home: StartingScreen(),
+      home: isloggedIn? Pagecontroller(): StartingScreen(),
     );
   }
 }

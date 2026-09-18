@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/SearchRooms.dart';
@@ -16,6 +18,25 @@ class Browseroom extends StatefulWidget {
 }
 
 class _BrowseroomState extends State<Browseroom> {
+  Timer? waitforUserToStopTyping;
+  String uid = "abcw";
+  final TextEditingController _searchController = TextEditingController();
+  Future<QuerySnapshot> getRoomsfilted() async {
+    String searchText = _searchController.text.trim();
+    if (searchText.isEmpty) {
+      return fetchAvailableRooms(uid);
+    } else {
+      return await FirebaseFirestore.instance
+          .collection('Rooms')
+          .where('Name', isGreaterThanOrEqualTo: searchText)
+          .where('Name', isLessThanOrEqualTo: searchText + '\uf8ff')
+          // .where('RoomCode', isGreaterThanOrEqualTo: searchText)
+          // .where('RoomCode', isLessThanOrEqualTo: searchText + '\uf8ff')
+          .limit(5)
+          .get();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +61,23 @@ class _BrowseroomState extends State<Browseroom> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Flexible(child: SearchBox(lebel: 'Search for room')),
+                    Flexible(
+                      child: SearchBox(
+                        lebel: 'Search for room',
+                        controller: _searchController,
+                        onChanged: () {
+                          if (waitforUserToStopTyping != null) {
+                            waitforUserToStopTyping!.cancel();
+                          }
+                          waitforUserToStopTyping = Timer(
+                            const Duration(milliseconds: 500),
+                            () {
+                              setState(() {});
+                            },
+                          );
+                        },
+                      ),
+                    ),
                     IconButton.filled(
                       onPressed: () {},
                       icon: Icon(Icons.filter_list),
@@ -57,7 +94,7 @@ class _BrowseroomState extends State<Browseroom> {
 
           Expanded(
             child: FutureBuilder<QuerySnapshot>(
-              future: fetchAvailableRooms(),
+              future: getRoomsfilted(),
               builder: (context, Snapshot) {
                 if (Snapshot.hasError) {
                   return Center(child: Text('Something went wrong'));
@@ -77,8 +114,8 @@ class _BrowseroomState extends State<Browseroom> {
                     );
                     return listTileforBrowseRoom(
                       context: context,
-                      title: roomData.name,
-                      member: roomData.members.length.toDouble(),
+                      room: Snapshot.data!.docs[index],
+                      uid: uid,
                     );
                   },
                   separatorBuilder: (BuildContext context, int index) {

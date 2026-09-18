@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notehive/Screens/members.dart';
 import 'package:notehive/Screens/moderators.dart';
+import 'package:notehive/Screens/pageController.dart';
 import 'package:notehive/Screens/pendingApproval.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
@@ -15,7 +18,13 @@ import '../widgets/floatingUploadButton.dart';
 class RoomScreenAdminOrMod extends StatefulWidget {
   final Room room;
   final String? uid;
-  const RoomScreenAdminOrMod({super.key, required this.room, this.uid});
+  final String roomId;
+  const RoomScreenAdminOrMod({
+    super.key,
+    required this.room,
+    this.uid,
+    required this.roomId,
+  });
 
   @override
   State<RoomScreenAdminOrMod> createState() => _RoomScreenAdminOrModState();
@@ -49,12 +58,13 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 context: context,
                 text: 'View Room as a Member',
                 method: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => RoomScreen(room: widget.room),
-                  //   ),
-                  // );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RoomScreen(room: widget.room, roomId: widget.roomId),
+                    ),
+                  );
                 },
               ),
               LeadingTitleAndTailButton(
@@ -291,6 +301,76 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               icon: Icons.access_time,
             ),
             Divider(),
+            SizedBox(height: 20),
+            ElevatedButton(
+              child: isAdmin ? Text('Delete Room') : Text('Leave Room'),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text(isAdmin ? 'Delete Room' : 'Leave Room'),
+                      content: Text(
+                        isAdmin
+                            ? 'Are you sure you want to delete this room? This action cannot be undone.'
+                            : 'Are you sure you want to leave this room?',
+                      ),
+                      actions: [
+                        TextButton(
+                          child: Text('Cancel'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        TextButton(
+                          child: Text(isAdmin ? 'Delete' : 'Leave'),
+                          onPressed: () async {
+                            await FirebaseFirestore.instance
+                                .collection('Rooms')
+                                .doc(widget.roomId)
+                                .update({
+                                  'Members': FieldValue.arrayRemove([
+                                    FirebaseFirestore.instance
+                                        .collection('Users')
+                                        .doc(widget.uid),
+                                  ]),
+                                })
+                                .then((value) {
+                                  if (isAdmin) {
+                                    FirebaseFirestore.instance
+                                        .collection('Rooms')
+                                        .doc(widget.roomId)
+                                        .delete();
+                                  }
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                      builder: (context) => Pagecontroller(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                });
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => Pagecontroller(),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isAdmin ? Colors.red : Colors.orange,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
           ],
         ),
       ),

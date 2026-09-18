@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/getRoomResources.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
@@ -25,7 +26,7 @@ class RoomScreen extends StatefulWidget {
 
 class _RoomScreenState extends State<RoomScreen> {
   bool isModeratorUpload = false;
-  String uid = "abcd";
+  String uid = "abc";
   @override
   void initState() {
     if (widget.room.onlyModeratorUpload) {
@@ -80,8 +81,55 @@ class _RoomScreenState extends State<RoomScreen> {
             context: context,
             screen: RoomAnnouncementPage(),
           ),
+          SizedBox(width: 5),
+          IconButton.outlined(
+            iconSize: 30,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Are you sure you want to leave this room?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await FirebaseFirestore.instance
+                              .collection('Rooms')
+                              .doc(widget.roomId)
+                              .update({
+                                'Members': FieldValue.arrayRemove([
+                                  FirebaseFirestore.instance
+                                      .collection('Users')
+                                      .doc(uid),
+                                ]),
+                              })
+                              .then((value) {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                              });
+                        },
+                        child: Text('Leave'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            icon: Icon(Icons.logout_sharp),
+            style: IconButton.styleFrom(
+              foregroundColor: Colors.deepOrange[300],
+              backgroundColor: Colors.white,
+            ),
+          ),
         ],
       ),
+
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: SingleChildScrollView(
@@ -89,7 +137,11 @@ class _RoomScreenState extends State<RoomScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               //SizedBox(height: 20,),
-              SearchBox(lebel: 'Search for Resources'),
+              SearchBox(
+                lebel: 'Search for Resources',
+                controller: TextEditingController(),
+                onChanged: () {},
+              ),
               SizedBox(height: 20),
               Text(
                 'Categories',
@@ -159,7 +211,12 @@ class _RoomScreenState extends State<RoomScreen> {
                 buttonText: 'See All',
                 method: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => ResourcesScreen(room: widget.room, roomId: widget.roomId,)),
+                    MaterialPageRoute(
+                      builder: (context) => ResourcesScreen(
+                        room: widget.room,
+                        roomId: widget.roomId,
+                      ),
+                    ),
                   );
                 },
               ),
@@ -189,7 +246,8 @@ class _RoomScreenState extends State<RoomScreen> {
                         resource: Resource.fromMap(
                           snapshot.data!.docs[index].data()
                               as Map<String, dynamic>,
-                        ), resourceID: snapshot.data!.docs[index].id,
+                        ),
+                        resourceID: snapshot.data!.docs[index].id,
                       );
                     },
                   );
