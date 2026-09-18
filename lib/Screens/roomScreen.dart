@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getRoomResources.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/resourcesScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
+import 'package:notehive/Structures/resourcesStructure.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/cards.dart';
@@ -14,18 +16,38 @@ import '../widgets/floatingUploadButton.dart';
 
 class RoomScreen extends StatefulWidget {
   final Room room;
-  const RoomScreen({super.key, required this.room});
+  final String roomId;
+  const RoomScreen({super.key, required this.room, required this.roomId});
 
   @override
   State<RoomScreen> createState() => _RoomScreenState();
 }
 
 class _RoomScreenState extends State<RoomScreen> {
+  bool isModeratorUpload = false;
+  String uid = "abcd";
+  @override
+  void initState() {
+    if (widget.room.onlyModeratorUpload) {
+      for (var moderator in widget.room.moderators) {
+        if (moderator.id == uid) {
+          isModeratorUpload = true;
+          break;
+        }
+      }
+    } else {
+      isModeratorUpload = true;
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: floatingUploadButton(context: context),
+      floatingActionButton: isModeratorUpload
+          ? floatingUploadButton(context: context)
+          : null,
       appBar: AppBar(
         leadingWidth: 70,
         actionsPadding: EdgeInsets.only(right: 20),
@@ -87,6 +109,8 @@ class _RoomScreenState extends State<RoomScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ResourcesScreen(
+                            roomId: widget.roomId,
+                            room: widget.room,
                             filtered: widget.room.categories[index],
                           ),
                         ),
@@ -135,24 +159,39 @@ class _RoomScreenState extends State<RoomScreen> {
                 buttonText: 'See All',
                 method: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => ResourcesScreen()),
+                    MaterialPageRoute(builder: (context) => ResourcesScreen(room: widget.room, roomId: widget.roomId,)),
                   );
                 },
               ),
               SizedBox(height: 10),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
-                itemCount: 3,
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 10);
-                },
-                itemBuilder: (context, index) {
-                  return ResourcesListTile(
-                    context: context,
-                    title: 'Data Structure - Unit 4',
-                    subtitle: 'CSE1203.Sem 5.Notes',
+              FutureBuilder(
+                future: getRoomResources(roomId: widget.roomId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
+                    itemCount: snapshot.data!.docs.length > 3
+                        ? 3
+                        : snapshot.data!.docs.length,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 10);
+                    },
+                    itemBuilder: (context, index) {
+                      return ResourcesListTile(
+                        context: context,
+                        resource: Resource.fromMap(
+                          snapshot.data!.docs[index].data()
+                              as Map<String, dynamic>,
+                        ), resourceID: snapshot.data!.docs[index].id,
+                      );
+                    },
                   );
                 },
               ),
