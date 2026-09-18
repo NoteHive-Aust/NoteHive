@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/resourceDetails.dart';
-import 'package:notehive/Structures/resourcesStructure.dart';
 
-ListTile ResourcesListTile({required BuildContext context,required Resource resource,required String resourceID}) {
+ListTile ResourcesListTile({required BuildContext context,required String title,required String subtitle}) {
   return ListTile(
     onTap: (){
-      Navigator.of(context).push(MaterialPageRoute(builder: ((context) => ResourceDetailsScreen(resource: resource, resourceId: resourceID,))));
+      Navigator.of(context).push(MaterialPageRoute(builder: ((context) => ResourceDetailsScreen())));
     },
     trailing: Icon(Icons.chevron_right, size: 34),
     leading: Icon(Icons.description_outlined, size: 34),
-    title: Text(resource.title),
+    title: Text(title),
     subtitle: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(resource.authorSchoolName),
+        Text(subtitle),
         Row(
           children: [
             Container(
@@ -33,7 +32,7 @@ ListTile ResourcesListTile({required BuildContext context,required Resource reso
               //padding: EdgeInsets.all(5),
               child: Center(
                 child: Text(
-                  resource.category,
+                  'Notes',
                   style: TextStyle(
                     fontFamily: 'paragraph',
                     fontSize: 12,

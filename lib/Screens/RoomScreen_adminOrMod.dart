@@ -49,12 +49,12 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 context: context,
                 text: 'View Room as a Member',
                 method: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => RoomScreen(room: widget.room),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RoomScreen(room: widget.room),
+                    ),
+                  );
                 },
               ),
               LeadingTitleAndTailButton(
