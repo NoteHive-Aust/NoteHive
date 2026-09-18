@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notehive/Screens/roomScreen.dart';
+import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
 import 'package:notehive/widgets/leadingbackButton.dart';
 import 'package:notehive/widgets/listTileForBrowseRoom.dart';
@@ -13,15 +16,19 @@ class Joinroom extends StatefulWidget {
 }
 
 class _JoinroomState extends State<Joinroom> {
+  String uid = "abc";
+  TextEditingController _roomCodeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 70,
-          leading: LeadingBackButton(context),
-          title: Text('Join Room')),
+        leading: LeadingBackButton(context),
+        title: Text('Join Room'),
+      ),
       body: Padding(
-        padding: EdgeInsets.only(top: 40,left: 20,right: 20),
+        padding: EdgeInsets.only(top: 40, left: 20, right: 20),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -54,39 +61,102 @@ class _JoinroomState extends State<Joinroom> {
                       ),
                     ),
                   ),
-
-          
                 ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 50,vertical: 10),
-                margin: EdgeInsets.symmetric(horizontal: 60,vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                margin: EdgeInsets.symmetric(horizontal: 60, vertical: 10),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Color(0xff352E60).withOpacity(0.1))
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Color(0xff352E60).withOpacity(0.1)),
                 ),
                 child: TextField(
-                    textAlign: TextAlign.center,
-                    maxLength: 6,
-                    keyboardType: TextInputType.number,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      hintText: 'Enter 6 Digit Code',
-                      visualDensity: VisualDensity.compact,
-                    )
+                  controller: _roomCodeController,
+                  textAlign: TextAlign.center,
+                  maxLength: 6,
+                  keyboardType: TextInputType.number,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Enter 6 Digit Code',
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ),
 
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RoomScreen(roomName: 'roomName', roomSubtitle: "roomSubtitle")));
+                  onPressed: () async {
+                    String roomCode = _roomCodeController.text.trim();
+                    if (roomCode.isNotEmpty && roomCode.length == 6) {
+                      await FirebaseFirestore.instance
+                          .collection('Rooms')
+                          .where('RoomCode', isEqualTo: roomCode)
+                          .limit(1)
+                          .get()
+                          .then((querySnapshot) {
+                            if (querySnapshot.docs.isNotEmpty) {
+                              if (querySnapshot.docs.first.data()['RoomCode'] ==
+                                  roomCode) {
+                                querySnapshot.docs.first.reference
+                                    .update({
+                                      'Members': FieldValue.arrayUnion([
+                                        FirebaseFirestore.instance.doc(
+                                          'Users/$uid',
+                                        ),
+                                      ]),
+                                    })
+                                    .then((value) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => RoomScreen(
+                                            roomId: querySnapshot.docs.first.id,
+                                            room: Room.fromMap(
+                                              querySnapshot.docs.first.data(),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Room not found. Please check the code and try again.',
+                                    ),
+                                  ),
+                                );
+                                _roomCodeController.clear();
+                              }
+                            } else {
+                              // Room not found, show an error message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Room not found. Please check the code and try again.',
+                                  ),
+                                ),
+                              );
+                              _roomCodeController.clear();
+                            }
+                          });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Please enter a valid 6-digit room code.',
+                          ),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:  Color(0xFF8474F0),
-                    padding:  EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Color(0xFF8474F0),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
                   child: Text(
                     'Join Room',
@@ -98,35 +168,36 @@ class _JoinroomState extends State<Joinroom> {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
+              SizedBox(height: 10),
               Row(
-
                 children: [
                   Expanded(child: Divider()),
-                  Text('  or  ',style: TextStyle(
-                      fontFamily: 'paragraph'
-                  ),),
+                  Text('  or  ', style: TextStyle(fontFamily: 'paragraph')),
                   Expanded(child: Divider()),
                 ],
               ),
-              SizedBox(height: 10,),
+              SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:  Color(0xFF352E60),
-                    padding:  EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Color(0xFF352E60),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
 
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.qr_code_outlined,size: 20,color: Colors.white,),
-                      SizedBox(width: 10,),
+                      Icon(
+                        Icons.qr_code_outlined,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10),
                       Text(
                         'Scan QR',
                         style: TextStyle(
@@ -139,14 +210,25 @@ class _JoinroomState extends State<Joinroom> {
                   ),
                 ),
               ),
-              SizedBox(height: 40,),
-              LeadingTitleAndTailButton(context: context,title: 'Browse Public Rooms',buttonText: 'See All',method: Navigator.of(context).pop),
+              SizedBox(height: 40),
+              LeadingTitleAndTailButton(
+                context: context,
+                title: 'Browse Public Rooms',
+                buttonText: 'See All',
+                method: Navigator.of(context).pop,
+              ),
               ListView.separated(
                 shrinkWrap: true,
                 // /padding:EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 itemCount: 2,
                 itemBuilder: (context, index) {
-                  return listTileforBrowseRoom(context: context,title: 'Data Structure | 1205',member: 15);
+                  return SizedBox();
+                  // listTileforBrowseRoom(
+
+                  //   context: context,
+                  //   title: 'Data Structure | 1205',
+                  //   member: 15, isPrivate: true,
+                  // );
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return SizedBox(height: 10);

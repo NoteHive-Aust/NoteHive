@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Container SearchBox({required String lebel}) {
+Container SearchBox({required String lebel,required TextEditingController controller,required VoidCallback? onChanged}) {
   return Container(
     height: 55,
     margin: EdgeInsets.symmetric(vertical: 20),
@@ -10,7 +10,11 @@ Container SearchBox({required String lebel}) {
       color: Color(0xff352E60).withOpacity(0.05),
     ),
     child: TextField(
+      controller: controller,
       maxLines: 1,
+      onChanged: (value) {
+        onChanged?.call();
+      },
       decoration: InputDecoration(
         border: InputBorder.none,
 

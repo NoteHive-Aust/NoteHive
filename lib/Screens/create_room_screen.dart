@@ -26,6 +26,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
   bool privateRoom = true;
   bool onlyModeratorUpload = false;
+  String uid = "abc";
 
   List<String> departments = [
     'Computer Science & Engineering',
@@ -80,6 +81,11 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
       onlyModeratorUpload: onlyModeratorUpload,
     );
     await roomRef.set(newRoom.toMap());
+    await roomRef.update({
+      'Members': FieldValue.arrayUnion([
+        firestore.collection('Users').doc(uid),
+      ]),
+    });
   }
 
   @override
@@ -331,8 +337,11 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              RoomScreenAdminOrMod(room: newRoom, uid: 'abc'),
+                          builder: (context) => RoomScreenAdminOrMod(
+                            room: newRoom,
+                            uid: 'abc',
+                            roomId: 'newRoom.id',
+                          ),
                         ),
                       );
                     });
