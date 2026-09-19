@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getAnnouncemnets.dart';
 import 'package:notehive/Screens/moderators.dart';
+import 'package:notehive/Structures/announcements.dart';
 import '../widgets/cards.dart';
 
 class RoomAnnouncementPage extends StatefulWidget {
-  const RoomAnnouncementPage({super.key});
+  final String roomId;
+
+  const RoomAnnouncementPage({super.key, required this.roomId});
 
   @override
   State<RoomAnnouncementPage> createState() => _RoomAnnouncementPageState();
@@ -16,23 +20,38 @@ class _RoomAnnouncementPageState extends State<RoomAnnouncementPage> {
       appBar: appBar(),
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView.separated(
-          padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
-          itemCount: 10,
-          separatorBuilder: (context, index) {
-            return SizedBox(
-              height: 15,
-            );
-          },
-          itemBuilder: (context, index) {
-            return NotificationsCard(
-              title:
-                  'Mid term timetable has just been posted. Check the announcements.',
-              subtitle: '',
-              time: '1h ago',
-            );
-          },
-        ),
+        child: FutureBuilder(future: getAnnouncement(roomId: widget.roomId), builder: (context, snapshot){
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          return ListView.separated(
+            padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
+            itemCount: snapshot.data!.docs.length,
+            separatorBuilder: (context, index) {
+              return SizedBox(
+                height: 15,
+              );
+            },
+            itemBuilder: (context, index) {
+              Notifications newNotifications = Notifications.fromMap(
+                snapshot.data!.docs[index].data() as Map<String, dynamic>
+              );
+              return NotificationsCard(
+                title:
+                newNotifications.content,
+                subtitle:
+                newNotifications.roomName,
+                time:
+                DateTime.now().difference(newNotifications.uploadTime).inDays < 1
+                    ? '${DateTime.now().difference(newNotifications.uploadTime).inHours}h ago'
+                    : '${DateTime.now().difference(newNotifications.uploadTime).inDays}d ago',
+              );
+            },
+          );
+        })
       ),
     );
   }
