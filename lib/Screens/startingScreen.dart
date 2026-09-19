@@ -33,7 +33,7 @@ class StartingScreen extends StatelessWidget {
 
                 const SizedBox(height: 60),
 
-                
+
                 Center(
                   child: Image.asset(
                     'assets/Illustration.png',
@@ -59,7 +59,7 @@ class StartingScreen extends StatelessWidget {
 
                 const SizedBox(height: 9),
 
-              
+
                 const Text(
                   "Join your department's private hub. Upload notes,\n"
                   "papers, and assignments. Learn faster as a\n"
@@ -107,7 +107,7 @@ class StartingScreen extends StatelessWidget {
 
                 const SizedBox(height: 8),
 
-                
+
                 SizedBox(
                   width: double.infinity,
                   height: 35,

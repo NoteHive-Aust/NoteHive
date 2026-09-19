@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getRoomResources.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/resourcesScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
+import 'package:notehive/Structures/resourcesStructure.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/cards.dart';
@@ -14,18 +17,38 @@ import '../widgets/floatingUploadButton.dart';
 
 class RoomScreen extends StatefulWidget {
   final Room room;
-  const RoomScreen({super.key, required this.room});
+  final String roomId;
+  const RoomScreen({super.key, required this.room, required this.roomId});
 
   @override
   State<RoomScreen> createState() => _RoomScreenState();
 }
 
 class _RoomScreenState extends State<RoomScreen> {
+  bool isModeratorUpload = false;
+  String uid = "abc";
+  @override
+  void initState() {
+    if (widget.room.onlyModeratorUpload) {
+      for (var moderator in widget.room.moderators) {
+        if (moderator.id == uid) {
+          isModeratorUpload = true;
+          break;
+        }
+      }
+    } else {
+      isModeratorUpload = true;
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: floatingUploadButton(context: context),
+      floatingActionButton: isModeratorUpload
+          ? floatingUploadButton(context: context)
+          : null,
       appBar: AppBar(
         leadingWidth: 70,
         actionsPadding: EdgeInsets.only(right: 20),
@@ -58,8 +81,55 @@ class _RoomScreenState extends State<RoomScreen> {
             context: context,
             screen: RoomAnnouncementPage(),
           ),
+          SizedBox(width: 5),
+          IconButton.outlined(
+            iconSize: 30,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Are you sure you want to leave this room?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await FirebaseFirestore.instance
+                              .collection('Rooms')
+                              .doc(widget.roomId)
+                              .update({
+                                'Members': FieldValue.arrayRemove([
+                                  FirebaseFirestore.instance
+                                      .collection('Users')
+                                      .doc(uid),
+                                ]),
+                              })
+                              .then((value) {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                              });
+                        },
+                        child: Text('Leave'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            icon: Icon(Icons.logout_sharp),
+            style: IconButton.styleFrom(
+              foregroundColor: Colors.deepOrange[300],
+              backgroundColor: Colors.white,
+            ),
+          ),
         ],
       ),
+
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: SingleChildScrollView(
@@ -67,7 +137,11 @@ class _RoomScreenState extends State<RoomScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               //SizedBox(height: 20,),
-              SearchBox(lebel: 'Search for Resources'),
+              SearchBox(
+                lebel: 'Search for Resources',
+                controller: TextEditingController(),
+                onChanged: () {},
+              ),
               SizedBox(height: 20),
               Text(
                 'Categories',
@@ -87,6 +161,8 @@ class _RoomScreenState extends State<RoomScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ResourcesScreen(
+                            roomId: widget.roomId,
+                            room: widget.room,
                             filtered: widget.room.categories[index],
                           ),
                         ),
@@ -135,24 +211,45 @@ class _RoomScreenState extends State<RoomScreen> {
                 buttonText: 'See All',
                 method: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => ResourcesScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => ResourcesScreen(
+                        room: widget.room,
+                        roomId: widget.roomId,
+                      ),
+                    ),
                   );
                 },
               ),
               SizedBox(height: 10),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
-                itemCount: 3,
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 10);
-                },
-                itemBuilder: (context, index) {
-                  return ResourcesListTile(
-                    context: context,
-                    title: 'Data Structure - Unit 4',
-                    subtitle: 'CSE1203.Sem 5.Notes',
+              FutureBuilder(
+                future: getRoomResources(roomId: widget.roomId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
+                    itemCount: snapshot.data!.docs.length > 3
+                        ? 3
+                        : snapshot.data!.docs.length,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 10);
+                    },
+                    itemBuilder: (context, index) {
+                      return ResourcesListTile(
+                        context: context,
+                        resource: Resource.fromMap(
+                          snapshot.data!.docs[index].data()
+                              as Map<String, dynamic>,
+                        ),
+                        resourceID: snapshot.data!.docs[index].id,
+                      );
+                    },
                   );
                 },
               ),

@@ -4,9 +4,11 @@ import 'package:notehive/FirebaseOperations/getMyRooms.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/roomScreen.dart';
+import 'package:notehive/Screens/searchMyRooms.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/Structures/userStructure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:notehive/widgets/listitemcardforhome.dart';
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
 
@@ -44,9 +46,8 @@ class _HomescreenState extends State<Homescreen> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<QuerySnapshot>(
-                future: getMyRooms(),
-
+              child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                future: getMyRooms(uid),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(child: Text('Something went wrong'));
@@ -57,142 +58,61 @@ class _HomescreenState extends State<Homescreen> {
                   if (snapshot.data!.docs.isEmpty) {
                     return Center(child: Text('No documents found.'));
                   }
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, item) {
-                      Room room = Room.fromMap(
-                        snapshot.data!.docs[item].data()
-                            as Map<String, dynamic>,
-                      );
-                      bool isAdmin = room.adminID.id == uid;
-                      if (!isAdmin) {
-                        for (var moderator in room.moderators) {
-                          if (moderator.id == uid) {
-                            isAdmin = true;
-                            break;
+                  return RefreshIndicator(
+                    onRefresh: ()async{
+                      setState(() {
+
+                      });
+                    },
+                    child: ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, item) {
+                        Room room = Room.fromMap(
+                          snapshot.data!.docs[item].data(),
+                        );
+                        bool isAdmin = room.adminID.id == uid;
+                        if (!isAdmin) {
+                          for (var moderator in room.moderators) {
+                            if (moderator.id == uid) {
+                              isAdmin = true;
+                              break;
+                            }
                           }
                         }
-                      }
-                      return listItemCard(
-                        roomName: room.name,
-                        universityName: room.schoolName,
-                        members: room.members.length.toInt(),
-                        resources: room.resources.length.toInt(),
-                        isPrivate: !room.isPublic,
-                        method: () {
-                          isAdmin
-                              ? Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RoomScreenAdminOrMod(
-                                      room: room,
-                                      uid: uid,
+                        return listItemCard(
+                          roomName: room.name,
+                          universityName: room.schoolName,
+                          members: room.members.length.toInt(),
+                          resources: room.resources.length.toInt(),
+                          isPrivate: !room.isPublic,
+                          method: () {
+                            isAdmin
+                                ? Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RoomScreenAdminOrMod(
+                                        room: room,
+                                        uid: uid,
+                                        roomId: snapshot.data!.docs[item].id,
+                                      ),
                                     ),
-                                  ),
-                                )
-                              : Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        RoomScreen(room: room),
-                                  ),
-                                );
-                        },
-                      );
-                    },
+                                  )
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RoomScreen(
+                                        room: room,
+                                        roomId: snapshot.data!.docs[item].id,
+                                      ),
+                                    ),
+                                  );
+                          },
+                        );
+                      },
+                    ),
                   );
                 },
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Card listItemCard({
-    required String roomName,
-    required String universityName,
-    required int members,
-    required int resources,
-    required bool isPrivate,
-    required VoidCallback method,
-  }) {
-    return Card(
-      color: Colors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Color(0xFF352E60).withOpacity(.1)),
-      ),
-      child: ListTile(
-        onTap: method,
-
-        //tileColor: Colors.white,
-        title: Text(roomName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(universityName),
-            SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.people_outline, size: 16),
-                    SizedBox(width: 5),
-                    Text(
-                      members.toString(),
-                      style: TextStyle(
-                        //ontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff352E60),
-                      ),
-                    ),
-                    Text(" Members"),
-                  ],
-                ),
-                SizedBox(width: 10),
-                Row(
-                  children: [
-                    Icon(Icons.insert_drive_file_outlined, size: 16),
-                    Text(
-                      resources.toString(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff352E60),
-                      ),
-                    ),
-                    Text(" Resources", style: TextStyle(fontSize: 12)),
-                  ],
-                ),
-                SizedBox(width: 10),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 1,
-                      color: Color(0xFF352E60).withOpacity(0.1),
-                    ),
-                    borderRadius: BorderRadius.circular(200),
-                    color: Colors.white,
-                  ),
-                  child: Row(
-                    children: [
-                      isPrivate
-                          ? Icon(Icons.lock_outline_rounded, size: 12)
-                          : Icon(Icons.lock_open_rounded, size: 12),
-                      SizedBox(width: 2),
-                      Text(
-                        " ${isPrivate ? "Private" : "Public"}",
-                        style: TextStyle(fontSize: 11),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ),
           ],
         ),
@@ -235,7 +155,12 @@ class _HomescreenState extends State<Homescreen> {
       actions: [
         IconButton(
           iconSize: 30,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchMyRooms()),
+            );
+          },
           icon: Icon(Icons.search),
           style: IconButton.styleFrom(
             foregroundColor: Colors.white,

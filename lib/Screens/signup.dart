@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/auth_services.dart';
 import 'package:notehive/Screens/homeScreen.dart';
 import 'package:notehive/Screens/login.dart';
+import 'package:notehive/Screens/pageController.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -32,7 +33,7 @@ class _SignupScreenState extends State<SignupScreen> {
   try {
     await authServices.value.createUser(email: emailController.text, password :passwordController.text,);
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Homescreen()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Pagecontroller()));
   } catch (e) {
     // Handle error
     print('Error creating user: $e');
