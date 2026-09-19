@@ -12,7 +12,7 @@ class RoomSettings extends StatefulWidget {
 class _RoomSettingsState extends State<RoomSettings> {
   TextEditingController roomNameController = TextEditingController();
   TextEditingController institutionController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
+
 
   String? selectedDepartment;
   String? selectedBatchYear;
@@ -50,7 +50,7 @@ class _RoomSettingsState extends State<RoomSettings> {
   void dispose() {
     roomNameController.dispose();
     institutionController.dispose();
-    descriptionController.dispose();
+
     super.dispose();
   }
 
@@ -283,39 +283,6 @@ class _RoomSettingsState extends State<RoomSettings> {
                         selectedBatchYear = value;
                       });
                     },
-                  ),
-                ),
-              ),
-              SizedBox(height: 18),
-              Text(
-                'Room Description',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1730),
-                ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Color(0xFF352E60).withOpacity(0.1),
-                  ),
-                ),
-                child: TextField(
-                  controller: descriptionController,
-                  maxLines: 4,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Write room description (Optional)',
-                    hintStyle: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'paragraph',
-                      color: Color(0xFF352E60).withOpacity(0.35),
-                    ),
                   ),
                 ),
               ),
