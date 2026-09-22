@@ -11,6 +11,15 @@ class AuthServices {
   Stream<Object?>? get authStateChanges => null;
 
 
+  static final AuthServices instance = AuthServices();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  String get uid => auth.currentUser?.uid ?? '';
+
+
+
+
+
+
   Future<UserCredential> signIn({
     required String email,
     required String password,
