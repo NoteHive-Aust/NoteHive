@@ -1,28 +1,32 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import '../widgets/leadingbackButton.dart';
+import 'package:notehive/FirebaseOperations/auth_services.dart';
+import 'package:notehive/FirebaseOperations/firebase_storage_services.dart';
+import 'package:notehive/Structures/userStructure.dart' as model;
+import 'package:notehive/widgets/leadingbackButton.dart';
 import 'dart:typed_data';
 
-import 'package:notehive/FirebaseOperations/firebase_storage_services.dart';
-
 class ResourceUploadScreen extends StatefulWidget {
-  const ResourceUploadScreen({super.key});
+  final String roomId;
+
+  const ResourceUploadScreen({super.key, required this.roomId});
 
   @override
-  State<ResourceUploadScreen> createState() => _ResourceUploadScreenState();
+  State<ResourceUploadScreen> createState() => ResourceUploadScreenState();
 }
 
-class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+class ResourceUploadScreenState extends State<ResourceUploadScreen> {
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   String? selectedCategory;
-
   PlatformFile? selectedFile;
   bool isUploading = false;
   String? titleError;
   String? categoryError;
   String? descriptionError;
   String? fileError;
+
   final List<String> categories = [
     'Notes',
     'Question Bank',
@@ -30,42 +34,39 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     'Book / Reference',
     'Lecture Slides',
   ];
+
   Future<void> pickPdfFile() async {
     try {
-      final result = await FilePicker.pickFiles(
+      final List<PlatformFile> result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
-
-      if (result.isNotEmpty && result.single.bytes != null) {
+      if (result.isNotEmpty) {
         setState(() {
-          selectedFile = result.single;
+          selectedFile = result.first;
           fileError = null;
         });
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error selecting file: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error selecting file: $e')),
+        );
       }
     }
   }
 
   bool validateForm() {
     setState(() {
-      titleError = _titleController.text.trim().isEmpty
+      titleError = titleController.text.trim().isEmpty
           ? 'Title is required'
           : null;
-
       categoryError = selectedCategory == null
           ? 'Please select a category'
           : null;
-
-      descriptionError = _descriptionController.text.trim().isEmpty
+      descriptionError = descriptionController.text.trim().isEmpty
           ? 'Description is required'
           : null;
-
       fileError = selectedFile == null
           ? 'Please select a PDF file to upload'
           : null;
@@ -78,39 +79,82 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
   }
 
   Future<void> handleSubmit() async {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
-    setState(() {
-      isUploading = true;
-    });
+    setState(() => isUploading = true);
 
-    final String fileName = selectedFile!.name;
-    final Uint8List fileBytes = selectedFile!.bytes!;
+    try {
+      final String uid = AuthServices.instance.uid;
+      final String fileName = selectedFile!.name;
+      final Uint8List fileBytes = await selectedFile!.readAsBytes();
 
-    final String? downloadUrl = await FirebaseStorageService.instance
-        .uploadFile(fileBytes, fileName);
+      final DocumentSnapshot userSnap = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(uid)
+          .get();
 
-    setState(() {
-      isUploading = false;
-    });
+      final model.User currentUser =
+          model.User.fromMap(userSnap.data() as Map<String, dynamic>);
 
-    if (downloadUrl != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Resource uploaded successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context);
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to upload file. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      final String? downloadUrl = await FirebaseStorageService.instance
+          .uploadFile(fileBytes, fileName);
+
+      if (downloadUrl == null) {
+        setState(() => isUploading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to upload file. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      final DocumentReference resourceRef = await FirebaseFirestore.instance
+          .collection('Resources')
+          .add({
+        'RoomID': widget.roomId,
+        'Title': titleController.text.trim(),
+        'Category': selectedCategory,
+        'Description': descriptionController.text.trim(),
+        'ResourceUrl': downloadUrl,
+        'AuthorName': currentUser.name,
+        'AuthorSchoolName': currentUser.schoolName,
+        'Downloads': 0,
+        'Veiws': 0,
+        'time': FieldValue.serverTimestamp(),
+      });
+
+      await FirebaseFirestore.instance
+          .collection('Rooms')
+          .doc(widget.roomId)
+          .update({
+        'Resources': FieldValue.arrayUnion([resourceRef]),
+      });
+
+      setState(() => isUploading = false);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Resource uploaded successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() => isUploading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -122,12 +166,12 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     return '${mb.toStringAsFixed(1)} MB';
   }
 
-  Widget errorText(String? errorText) {
-    if (errorText == null) return const SizedBox.shrink();
+  Widget buildErrorText(String? error) {
+    if (error == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: 6, left: 4),
       child: Text(
-        errorText,
+        error,
         style: const TextStyle(
           color: Colors.redAccent,
           fontSize: 12,
@@ -139,8 +183,8 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
+    titleController.dispose();
+    descriptionController.dispose();
     super.dispose();
   }
 
@@ -167,27 +211,32 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildFieldLabel('Title'),
+            buildFieldLabel('Title'),
             const SizedBox(height: 8),
-            _buildTextField(
-              controller: _titleController,
+            buildTextField(
+              controller: titleController,
               hintText: 'Enter your title',
             ),
-            errorText(titleError),
+            buildErrorText(titleError),
             const SizedBox(height: 20),
-            _buildFieldLabel('Category'),
+            buildFieldLabel('Category'),
             const SizedBox(height: 8),
-            _buildCategoryDropdown(),
+            buildCategoryDropdown(),
+            buildErrorText(categoryError),
             const SizedBox(height: 20),
-            _buildFieldLabel('Description'),
+            buildFieldLabel('Description'),
             const SizedBox(height: 8),
-            _buildDescriptionField(),
+            buildDescriptionField(),
+            buildErrorText(descriptionError),
             const SizedBox(height: 24),
-            _buildDropzoneArea(),
-            const SizedBox(height: 16),
-            _buildUploadedFileCard(),
+            buildDropzoneArea(),
+            buildErrorText(fileError),
+            if (selectedFile != null) ...[
+              const SizedBox(height: 16),
+              buildSelectedFileCard(),
+            ],
             const SizedBox(height: 32),
-            _buildSubmitButton(),
+            buildSubmitButton(),
             const SizedBox(height: 20),
           ],
         ),
@@ -195,7 +244,7 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     );
   }
 
-  Widget _buildFieldLabel(String label) {
+  Widget buildFieldLabel(String label) {
     return Text(
       label,
       style: const TextStyle(
@@ -206,7 +255,7 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     );
   }
 
-  Widget _buildTextField({
+  Widget buildTextField({
     required TextEditingController controller,
     required String hintText,
   }) {
@@ -234,7 +283,7 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     );
   }
 
-  Widget _buildCategoryDropdown() {
+  Widget buildCategoryDropdown() {
     return Container(
       height: 55,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -263,13 +312,17 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
               value: category,
               child: Text(
                 category,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF1A1730)),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF1A1730),
+                ),
               ),
             );
           }).toList(),
           onChanged: (String? newValue) {
             setState(() {
               selectedCategory = newValue;
+              categoryError = null;
             });
           },
         ),
@@ -277,16 +330,18 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     );
   }
 
-  Widget _buildDescriptionField() {
+  Widget buildDescriptionField() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
+        border: Border.all(
+          color: const Color(0xFF352E60).withOpacity(0.1),
+        ),
       ),
       child: TextField(
-        controller: _descriptionController,
+        controller: descriptionController,
         maxLines: 5,
         decoration: InputDecoration(
           border: InputBorder.none,
@@ -301,7 +356,7 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     );
   }
 
-  Widget _buildDropzoneArea() {
+  Widget buildDropzoneArea() {
     return GestureDetector(
       onTap: pickPdfFile,
       child: Container(
@@ -312,9 +367,7 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: fileError != null
-                ? Colors.red.withOpacity(
-                    0.5,
-                  ) // [ADDED: Highlight border on error]
+                ? Colors.red.withOpacity(0.5)
                 : const Color(0xFF352E60).withOpacity(0.12),
           ),
         ),
@@ -344,7 +397,7 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Supports PDF, DOC, DOCX, PPT, PPTX (max 25 MB)',
+              'Supports PDF only (max 25 MB)',
               style: TextStyle(
                 fontSize: 12,
                 fontFamily: 'paragraph',
@@ -381,13 +434,15 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
     );
   }
 
-  Widget _buildUploadedFileCard() {
+  Widget buildSelectedFileCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
+        border: Border.all(
+          color: const Color(0xFF352E60).withOpacity(0.1),
+        ),
       ),
       child: Row(
         children: [
@@ -402,8 +457,8 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
               ),
             ),
             child: const Icon(
-              Icons.insert_drive_file_outlined,
-              color: Color(0xFF352E60),
+              Icons.picture_as_pdf_outlined,
+              color: Color(0xFF8474F0),
               size: 24,
             ),
           ),
@@ -412,17 +467,18 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'CSE_lecture_note.pdf',
-                  style: TextStyle(
-                    fontSize: 16,
+                Text(
+                  selectedFile!.name,
+                  style: const TextStyle(
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1A1730),
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '3.2 MB . PDF',
+                  '${formatBytes(selectedFile!.lengthSync() ?? 0)} · PDF',
                   style: TextStyle(
                     fontSize: 13,
                     fontFamily: 'paragraph',
@@ -432,32 +488,52 @@ class _ResourceUploadScreenState extends State<ResourceUploadScreen> {
               ],
             ),
           ),
+          IconButton(
+            icon: Icon(
+              Icons.close_rounded,
+              color: const Color(0xFF352E60).withOpacity(0.4),
+              size: 20,
+            ),
+            onPressed: () {
+              setState(() => selectedFile = null);
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
       height: 54,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: isUploading ? null : handleSubmit,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF8474F0),
+          disabledBackgroundColor: const Color(0xFF8474F0).withOpacity(0.6),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: const Text(
-          'Submit For Review',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        child: isUploading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : const Text(
+                'Submit For Review',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }

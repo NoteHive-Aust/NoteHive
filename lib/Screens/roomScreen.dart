@@ -48,9 +48,8 @@ class _RoomScreenState extends State<RoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: isModeratorUpload
-          ? floatingUploadButton(context: context)
+          ? floatingUploadButton(context: context, roomId: widget.roomId)
           : null,
       appBar: AppBar(
         leadingWidth: 70,
@@ -224,23 +223,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   );
                 },
               ),
-              // ListView.separated(
-              //   shrinkWrap: true,
-              //   physics: const NeverScrollableScrollPhysics(),
-              //   //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
-              //   itemCount: 2,
-              //   separatorBuilder: (context, index) {
-              //     return SizedBox(height: 10);
-              //   },
-              //   itemBuilder: (context, index) {
-              //     return NotificationsCard(
-              //       title:
-              //           'Mid term timetable has just been posted. Check the announcements.',
-              //       subtitle: 'CSE 2103',
-              //       time: '1h ago',
-              //     );
-              //   },
-              // ),
+
               SizedBox(height: 20),
               LeadingTitleAndTailButton(
                 context: context,

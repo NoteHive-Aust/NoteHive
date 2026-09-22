@@ -1,22 +1,26 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/resourceUpload.dart';
 
-SizedBox floatingUploadButton({required BuildContext context}) {
+SizedBox floatingUploadButton({
+  required BuildContext context,
+  required String roomId,
+}) {
   return SizedBox(
     height: 70,
     width: 70,
     child: FloatingActionButton(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(40.0), // Custom corner radius
+        borderRadius: BorderRadius.circular(40.0),
       ),
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: ((context) => ResourceUploadScreen())));
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: ((context) => ResourceUploadScreen(roomId: roomId)),
+          ),
+        );
       },
-
-      backgroundColor: Color(0xFF8474F0),
-      child: Icon(Icons.file_upload_rounded, color: Colors.white,size: 36,),
+      backgroundColor: const Color(0xFF8474F0),
+      child: const Icon(Icons.file_upload_rounded, color: Colors.white, size: 36),
     ),
   );
 }
