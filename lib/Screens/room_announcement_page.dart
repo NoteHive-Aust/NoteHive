@@ -16,6 +16,7 @@ class RoomAnnouncementPage extends StatefulWidget {
 class _RoomAnnouncementPageState extends State<RoomAnnouncementPage> {
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: appBar(),
       backgroundColor: Colors.white,

@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getAnnouncemnets.dart';
 import 'package:notehive/FirebaseOperations/getRoomResources.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/resourcesScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
+import 'package:notehive/Structures/announcements.dart';
 import 'package:notehive/Structures/resourcesStructure.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
@@ -26,7 +29,7 @@ class RoomScreen extends StatefulWidget {
 
 class _RoomScreenState extends State<RoomScreen> {
   bool isModeratorUpload = false;
-  String uid = "abc";
+  String uid = FirebaseAuth.instance.currentUser!.uid;
   @override
   void initState() {
     if (widget.room.onlyModeratorUpload) {
@@ -79,7 +82,7 @@ class _RoomScreenState extends State<RoomScreen> {
         actions: [
           NotificationButtonForAppBar(
             context: context,
-            screen: RoomAnnouncementPage(roomId: widget.roomId,),
+            screen: RoomAnnouncementPage(roomId: widget.roomId),
           ),
           SizedBox(width: 5),
           IconButton.outlined(
@@ -181,29 +184,63 @@ class _RoomScreenState extends State<RoomScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => NotificationsScreen(),
+                      builder: (context) =>
+                          RoomAnnouncementPage(roomId: widget.roomId),
                     ),
                   );
                 },
               ),
               SizedBox(height: 10),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
-                itemCount: 2,
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 10);
-                },
-                itemBuilder: (context, index) {
-                  return NotificationsCard(
-                    title:
-                        'Mid term timetable has just been posted. Check the announcements.',
-                    subtitle: 'CSE 2103',
-                    time: '1h ago',
+              FutureBuilder(
+                future: getAnnouncement(roomId: widget.roomId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: snapshot.data!.docs.length > 2
+                        ? 2
+                        : snapshot.data!.docs.length,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 10);
+                    },
+                    itemBuilder: (context, index) {
+                      var notification = Notifications.fromMap(
+                        snapshot.data!.docs[index].data()
+                            as Map<String, dynamic>,
+                      );
+                      return NotificationsCard(
+                        title: notification.content,
+                        subtitle: notification.roomName,
+                        time:
+                            '${DateTime.now().difference(notification.uploadTime).inHours}h ago',
+                      );
+                    },
                   );
                 },
               ),
+              // ListView.separated(
+              //   shrinkWrap: true,
+              //   physics: const NeverScrollableScrollPhysics(),
+              //   //padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
+              //   itemCount: 2,
+              //   separatorBuilder: (context, index) {
+              //     return SizedBox(height: 10);
+              //   },
+              //   itemBuilder: (context, index) {
+              //     return NotificationsCard(
+              //       title:
+              //           'Mid term timetable has just been posted. Check the announcements.',
+              //       subtitle: 'CSE 2103',
+              //       time: '1h ago',
+              //     );
+              //   },
+              // ),
               SizedBox(height: 20),
               LeadingTitleAndTailButton(
                 context: context,

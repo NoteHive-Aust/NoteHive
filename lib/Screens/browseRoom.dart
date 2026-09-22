@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/SearchRooms.dart';
 import 'package:notehive/Screens/joinRoom.dart';
@@ -9,9 +10,11 @@ import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/widgets/AppbarWidgets.dart';
 import 'package:notehive/widgets/listTileForBrowseRoom.dart';
 import 'package:notehive/widgets/searchBox.dart';
+import 'package:notehive/Structures/userStructure.dart' show User;
 
 class Browseroom extends StatefulWidget {
-  const Browseroom({super.key});
+  final User? user;
+  const Browseroom({super.key, required this.user});
 
   @override
   State<Browseroom> createState() => _BrowseroomState();
@@ -19,7 +22,7 @@ class Browseroom extends StatefulWidget {
 
 class _BrowseroomState extends State<Browseroom> {
   Timer? waitforUserToStopTyping;
-  String uid = "abcw";
+  String uid = FirebaseAuth.instance.currentUser!.uid;
   final TextEditingController _searchController = TextEditingController();
   Future<QuerySnapshot> getRoomsfilted() async {
     String searchText = _searchController.text.trim();
@@ -138,14 +141,14 @@ class _BrowseroomState extends State<Browseroom> {
         child: CircleAvatar(
           maxRadius: 25,
           minRadius: 20,
-          foregroundImage: AssetImage('assets/image.jpg'),
+          foregroundImage: NetworkImage(widget.user!.profileUrl),
         ),
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Sheikh Hasina",
+            widget.user!.name,
             style: TextStyle(
               fontFamily: 'paragraph',
               fontSize: 16,
@@ -154,7 +157,7 @@ class _BrowseroomState extends State<Browseroom> {
             ),
           ),
           Text(
-            "NUET",
+            widget.user!.schoolName,
             style: TextStyle(
               fontSize: 12,
               color: Color(0xFF352E60),

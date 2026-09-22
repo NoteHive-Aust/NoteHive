@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Screens/joinRoom.dart';
+import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 
 Container listTileforBrowseRoom({
@@ -90,9 +91,9 @@ Container listTileforBrowseRoom({
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => RoomScreenAdminOrMod(
+                      builder: (context) => RoomScreen(
                         room: Room.fromMap(room.data() as Map<String, dynamic>),
-                        uid: FirebaseAuth.instance.currentUser!.uid,
+
                         roomId: room.id,
                       ),
                     ),

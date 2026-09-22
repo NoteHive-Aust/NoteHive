@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/getMyRooms.dart';
@@ -13,18 +16,22 @@ import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
 
 class Homescreen extends StatefulWidget {
-  const Homescreen({super.key});
+  final User? user;
+  const Homescreen({super.key,required this.user});
 
   @override
   State<Homescreen> createState() => _HomescreenState();
 }
 
 class _HomescreenState extends State<Homescreen> {
-  String uid = "abc";
+  String uid = FirebaseAuth.instance.currentUser!.uid;
+
+
 
   @override
   void initState() {
     super.initState();
+
   }
 
   @override
@@ -59,10 +66,8 @@ class _HomescreenState extends State<Homescreen> {
                     return Center(child: Text('No documents found.'));
                   }
                   return RefreshIndicator(
-                    onRefresh: ()async{
-                      setState(() {
-
-                      });
+                    onRefresh: () async {
+                      setState(() {});
                     },
                     child: ListView.builder(
                       itemCount: snapshot.data!.docs.length,
@@ -90,11 +95,13 @@ class _HomescreenState extends State<Homescreen> {
                                 ? Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => RoomScreenAdminOrMod(
-                                        room: room,
-                                        uid: uid,
-                                        roomId: snapshot.data!.docs[item].id,
-                                      ),
+                                      builder: (context) =>
+                                          RoomScreenAdminOrMod(
+                                            room: room,
+                                            uid: uid,
+                                            roomId:
+                                                snapshot.data!.docs[item].id,
+                                          ),
                                     ),
                                   )
                                 : Navigator.push(
@@ -128,7 +135,9 @@ class _HomescreenState extends State<Homescreen> {
         child: CircleAvatar(
           maxRadius: 25,
           minRadius: 20,
-          foregroundImage: AssetImage('assets/image.jpg'),
+          foregroundImage: widget.user == null
+              ? AssetImage('assets/image.jpg')
+              : NetworkImage(widget.user!.profileUrl),
         ),
       ),
       title: InkWell(
@@ -137,7 +146,7 @@ class _HomescreenState extends State<Homescreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Sheikh Hasina",
+              widget.user==null? 'Name Loading':widget.user!.name,
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFF352E60),
@@ -145,7 +154,7 @@ class _HomescreenState extends State<Homescreen> {
               ),
             ),
             Text(
-              "NUET",
+              widget.user==null?'loading...':widget.user!.schoolName,
               style: TextStyle(fontSize: 12, color: Color(0xFF352E60)),
             ),
           ],

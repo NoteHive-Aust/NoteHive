@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notehive/FirebaseOperations/createAnnouncements.dart';
 import 'package:notehive/Screens/members.dart';
 import 'package:notehive/Screens/moderators.dart';
 import 'package:notehive/Screens/pageController.dart';
@@ -9,6 +10,7 @@ import 'package:notehive/Screens/pendingApproval.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
 import 'package:notehive/Screens/room_settings.dart';
+import 'package:notehive/Structures/announcements.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
 import 'package:notehive/widgets/leadingbackButton.dart';
 
@@ -32,6 +34,29 @@ class RoomScreenAdminOrMod extends StatefulWidget {
 
 class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
   late bool isAdmin = widget.room.adminID.id == widget.uid;
+  TextEditingController announcementController = TextEditingController();
+
+  void handleAnnouncementSubmission(BuildContext context, String roomId) {
+    Notifications newNotification = Notifications(
+      content: announcementController.text,
+      roomId: widget.roomId,
+      roomName: widget.room.name,
+      uploadTime: DateTime.now(),
+    );
+    CreateAnnouncement(roomId: roomId, notification: newNotification)
+        .then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Announcement published successfully!')),
+          );
+          announcementController.clear();
+        })
+        .catchError((error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to publish announcement: $error')),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,6 +151,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                   border: Border.all(color: Color(0xff352E60).withOpacity(0.1)),
                 ),
                 child: TextFormField(
+                  controller: announcementController,
                   maxLines: 5,
                   decoration: InputDecoration(
                     hintText: 'Write down the announcement...',
@@ -139,7 +165,9 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               lombaButton(
                 context: context,
                 text: 'Publish Announcement',
-                method: () {},
+                method: () {
+                  handleAnnouncementSubmission(context, widget.roomId);
+                },
               ),
               lombaButton(
                 context: context,
@@ -147,7 +175,8 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 method: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => RoomAnnouncementPage(roomId: widget.roomId,),
+                      builder: (context) =>
+                          RoomAnnouncementPage(roomId: widget.roomId),
                     ),
                   );
                 },

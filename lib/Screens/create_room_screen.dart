@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Structures/roomStructure.dart';
@@ -26,7 +28,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
   bool privateRoom = true;
   bool onlyModeratorUpload = false;
-  String uid = "abc";
+  String uid = FirebaseAuth.instance.currentUser!.uid;
 
   List<String> departments = [
     'Computer Science & Engineering',
@@ -63,19 +65,19 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   }
 
   late Room newRoom;
-  Future<void> createRoom() async {
+  Future<DocumentReference<Map<String, dynamic>>> createRoom() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     final roomRef = firestore.collection('Rooms').doc();
     newRoom = Room(
       name: roomNameController.text,
       schoolName: institutionController.text,
       roomCode: generatedRoomCode(),
-      adminID: firestore.collection('Users').doc('abc'),
+      adminID: firestore.collection('Users').doc(uid),
       moderators: [],
       members: [],
       resources: [],
       isPublic: !privateRoom,
-      categories: [],
+      categories: ['All'],
       Announcements: [],
       pendingApprovals: [],
       onlyModeratorUpload: onlyModeratorUpload,
@@ -86,6 +88,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         firestore.collection('Users').doc(uid),
       ]),
     });
+    return roomRef;
   }
 
   @override
@@ -302,14 +305,14 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                     //     ),
                     //   ),
                     // );
-                    createRoom().then((_) {
+                    createRoom().then((value) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => RoomScreenAdminOrMod(
                             room: newRoom,
-                            uid: 'abc',
-                            roomId: 'newRoom.id',
+                            uid: uid,
+                            roomId:value.id,
                           ),
                         ),
                       );
