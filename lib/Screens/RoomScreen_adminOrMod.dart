@@ -147,7 +147,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 method: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => RoomAnnouncementPage(),
+                      builder: (context) => RoomAnnouncementPage(roomId: widget.roomId,),
                     ),
                   );
                 },

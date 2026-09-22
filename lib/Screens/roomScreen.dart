@@ -79,7 +79,7 @@ class _RoomScreenState extends State<RoomScreen> {
         actions: [
           NotificationButtonForAppBar(
             context: context,
-            screen: RoomAnnouncementPage(),
+            screen: RoomAnnouncementPage(roomId: widget.roomId,),
           ),
           SizedBox(width: 5),
           IconButton.outlined(
