@@ -21,4 +21,12 @@ class Notifications {
       roomId: map['Room'],
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'Content': content,
+      'Room': roomId,
+      'RoomName': roomName,
+      'UploadTime': uploadTime,
+    };
+  }
 }

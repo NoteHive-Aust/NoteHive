@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:notehive/Screens/homeScreen.dart';
+import 'package:notehive/Screens/pageController.dart';
 import 'package:notehive/Screens/startingScreen.dart';
 
 import 'auth_services.dart';
@@ -22,7 +23,7 @@ class AuthLayout extends StatelessWidget{
             widget=  Center(child: CupertinoActivityIndicator(),);
           }
           else if(snapshot.hasData){
-            widget= Homescreen();
+            widget= Pagecontroller();
           }
           else{
             widget = pageIfConnected ?? StartingScreen();

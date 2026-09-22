@@ -1,17 +1,21 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notehive/Screens/edit_profile.dart';
 import 'package:notehive/Screens/login.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
 import 'package:notehive/Screens/signup.dart';
 import 'package:notehive/Screens/startingScreen.dart';
+import 'package:notehive/Structures/userStructure.dart' show User;
 
 import '../widgets/AppbarWidgets.dart';
 import '../widgets/bottomNavigation.dart';
 import '../widgets/searchBox.dart';
 
 class SettingScreen extends StatefulWidget {
-  const SettingScreen({super.key});
+  final User? user;
+  SettingScreen({super.key,required this.user});
 
   @override
   State<SettingScreen> createState() => _SettingScreenState();
@@ -22,7 +26,6 @@ class _SettingScreenState extends State<SettingScreen> {
   TextEditingController currentPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
   TextEditingController confirmNewPasswordController = TextEditingController();
-  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,8 @@ class _SettingScreenState extends State<SettingScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
 
               children: [
-                SearchBox(lebel: "Search for Settings", controller: TextEditingController(), onChanged: () {},),
+                SizedBox(height: 20),
+               // SearchBox(lebel: "Search for Settings", controller: TextEditingController(), onChanged: () {},),
                 //SizedBox(height: 20,),
                 ProfileEditTab(),
                 SizedBox(height: 20),
@@ -143,6 +147,7 @@ class _SettingScreenState extends State<SettingScreen> {
             splashColor: Color(0xff9689F2).withOpacity(0.2),
             onTap: () async {
               await FirebaseAuth.instance.signOut();
+              await FirebaseFirestore.instance.collection('Users').doc(FirebaseAuth.instance.currentUser!.uid).delete();
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => StartingScreen()),
@@ -349,7 +354,7 @@ class _SettingScreenState extends State<SettingScreen> {
             method: () {},
             icon: Icons.mail_outline_rounded,
             title: "Email Address",
-            tail: user?.email ?? '',
+            tail: widget.user==null?"loading...":widget.user!.email,
           ),
         ],
       ),
@@ -449,11 +454,20 @@ class _SettingScreenState extends State<SettingScreen> {
   ListTile ProfileEditTab() {
     return ListTile(
       //contentPadding: EdgeInsets.all(0),
-      leading: CircleAvatar(foregroundImage: AssetImage('assets/image.jpg')),
-      title: Text("Student Name"),
-      subtitle: Text("University Name"),
+      leading: CircleAvatar(foregroundImage: NetworkImage(widget.user==null?'leading...':widget.user!.profileUrl)),
+      title: Text(widget.user==null?'leading...':widget.user!.name),
+      subtitle: Text(widget.user==null?'leading...':widget.user!.schoolName),
       trailing: OutlinedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EditProfileScreen(
+                user: widget.user,
+              ),
+            ),
+          );
+        },
         child: Text("Edit", style: TextStyle(fontSize: 12)),
       ),
     );

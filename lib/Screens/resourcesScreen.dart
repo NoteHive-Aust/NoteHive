@@ -74,6 +74,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
+          print(snapshot.data!.docs.length);
           return  ListView.separated(
             shrinkWrap: true,
             //physics: const NeverScrollableScrollPhysics(),
@@ -83,7 +84,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
               return SizedBox(height: 10);
             },
             itemBuilder: (context, index) {
-
               return ResourcesListTile(
                 context: context,
                 resource: Resource.fromMap(
