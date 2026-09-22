@@ -24,6 +24,7 @@ class Comment {
 }
 
 class Resource {
+  final String roomID;
   final String title;
   final String category;
   final String description;
@@ -35,6 +36,7 @@ class Resource {
   final DateTime time;
   List<Comment> comments=[];
   Resource({
+    required this.roomID,
     required this.title,
     required this.category,
     required this.description,
@@ -48,6 +50,7 @@ class Resource {
   });
   factory Resource.fromMap(Map<String, dynamic> data) {
     return Resource(
+      roomID: data['RoomID'],
       time: (data['time'] as Timestamp).toDate(),
       title: data['Title'],
       category: data['Category'],

@@ -8,9 +8,9 @@ class User {
   final String email;
   final int totalUploads;
   final int repPoints;
-  List<DocumentReference<Map<String, dynamic>>> myUploads;
-  List<DocumentReference<Map<String, dynamic>>> notifications;
-  List<DocumentReference<Map<String, dynamic>>> memberAt;
+  List<dynamic> myUploads;
+  List<dynamic> notifications;
+  List<dynamic> memberAt;
   User({
     required this.name,
     required this.memberAt,
@@ -34,5 +34,18 @@ class User {
       myUploads: data['MyUploads'],
       notifications: data['Notifications'],
     );
+  }
+  Map<String, dynamic> toMap() {
+    return {
+      'Name': name,
+      'MemberAt': memberAt,
+      'SchoolName': schoolName,
+      'ProfileImage': profileUrl,
+      'Email': email,
+      'TotalUploads': totalUploads,
+      'RepPoints': repPoints,
+      'MyUploads': myUploads,
+      'Notifications': notifications,
+    };
   }
 }
