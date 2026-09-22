@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:notehive/FirebaseOperations/auth_services.dart';
 import 'package:notehive/Screens/homeScreen.dart';
 import 'package:notehive/Screens/login.dart';
@@ -18,6 +22,21 @@ class _SignupScreenState extends State<SignupScreen> {
   final confirmPasswordController = TextEditingController();
   final institutionController = TextEditingController();
 
+  File? pickedImage;
+  final ImagePicker picker = ImagePicker();
+
+  Future<void> pickImage() async {
+    final XFile? picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (picked != null) {
+      setState(() {
+        pickedImage = File(picked.path);
+      });
+    }
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -30,15 +49,44 @@ class _SignupScreenState extends State<SignupScreen> {
 
 
   void handleSignUp() async {
-  try {
-    await authServices.value.createUser(email: emailController.text, password :passwordController.text,);
+    try {
+        final credential = await authServices.value.createUser(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+      final uid = credential.user!.uid;
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Pagecontroller()));
-  } catch (e) {
-    // Handle error
-    print('Error creating user: $e');
+    
+      String profileImageUrl = '';
+      if (pickedImage != null) {
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('profileImages/$uid.jpg');
+        await storageRef.putFile(pickedImage!);
+        profileImageUrl = await storageRef.getDownloadURL();
+      }
+
+      
+      await FirebaseFirestore.instance.collection('Users').doc(uid).set({
+        'Name': nameController.text.trim(),
+        'Email': emailController.text.trim(),
+        'SchoolName': institutionController.text.trim(),
+        'ProfileImage': profileImageUrl,
+        'TotalUploads': 0,
+        'RepPoints': 0,
+        'MyUploads': [],
+        'MemberAt': [],
+        'Notifications': [],
+      });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Pagecontroller()),
+      );
+    } catch (e) {
+      print('Error creating user: $e');
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +162,7 @@ class _SignupScreenState extends State<SignupScreen> {
       decoration: InputDecoration(
         hintText: 'Enter your email here',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-        contentPadding: const EdgeInsets.symmetric(
+        contentPadding:  EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
@@ -215,30 +263,55 @@ Widget header(BuildContext context) {
     ],
   );
 }
-
+//2
 Widget photoPicker() {
-  return Column(
-    children: [
-      Container(
-        width: 90,
-        height: 90,
-        decoration: BoxDecoration(
-          color: Color(0xFFEFEBFF),
-          shape: BoxShape.circle,
-          border: Border.all(color:  Color(0xFFB0A8D8), width: 1.5),
+  return GestureDetector(
+    onTap: pickImage,
+    child: Column(
+      children: [
+        Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                color: Color(0xFFEFEBFF),
+                shape: BoxShape.circle,
+                border: Border.all(color: Color(0xFFB0A8D8), width: 1.5),
+                image: pickedImage != null
+                    ? DecorationImage(
+                        image: FileImage(pickedImage!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child: pickedImage == null
+                  ? Icon(
+                      Icons.person_outline,
+                      size: 45,
+                      color: Color(0xFF352E60),
+                    )
+                  : null,
+            ),
+            Container(
+              padding: EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Color(0xFF8474F0),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+              child: Icon(Icons.camera_alt, size: 14, color: Colors.white),
+            ),
+          ],
         ),
-        child:  Icon(
-          Icons.person_outline,
-          size: 45,
-          color: Color(0xFF352E60),
+        SizedBox(height: 8),
+        Text(
+          pickedImage == null ? 'Add photo (Optional)' : 'Tap to change photo',
+          style: TextStyle(fontSize: 14, color: Color(0xFF1A1730)),
         ),
-      ),
-       SizedBox(height: 8),
-       Text(
-        'Add photo (Optional)',
-        style: TextStyle(fontSize: 14, color: Color(0xFF1A1730)),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
