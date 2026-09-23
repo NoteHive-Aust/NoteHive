@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/auth_services.dart';
+import 'package:notehive/FirebaseOperations/getMyRooms.dart';
 import 'package:notehive/FirebaseOperations/getUserProfile.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Screens/pageController.dart';
 import 'package:notehive/Screens/my_uploads.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
+import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/Structures/userStructure.dart';
 import '../widgets/cards.dart';
@@ -84,32 +87,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   SizedBox(height: 20),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: 3,
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 10);
-                    },
-                    itemBuilder: (context, index) {
-                      return JoinedRoomCard(
-                        roomName: 'Box er Class',
-                        members: 130,
-                        method: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => RoomScreenAdminOrMod(
-                          //       room: Room(
-                          //         name: 'Box er Class',
-                          //         schoolName: 'AUST University',
-                          //         roomCode: 'AJ48I3',
-                          //         admin: User(name: 'Shaheer', memberAt: []),
-                          //         moderators: [],
-                          //       ),
-                          //     ),
-                          //   ),
-                          // );
+                  FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    future: getMyRooms(uid),
+                    builder: (context, roomSnapshot) {
+                      if (roomSnapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (roomSnapshot.hasError || !roomSnapshot.hasData) {
+                        return SizedBox();
+                      }
+                      var docs = roomSnapshot.data!.docs.reversed.take(3).toList();
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: docs.length,
+                        separatorBuilder: (context, index) {
+                          return SizedBox(height: 10);
+                        },
+                        itemBuilder: (context, index) {
+                          Room room = Room.fromMap(
+                            docs[index].data(),
+                          );
+                          bool isAdmin = room.adminID != null && room.adminID.id == uid;
+                          if (!isAdmin) {
+                            for (var moderator in room.moderators) {
+                              if (moderator.id == uid) {
+                                isAdmin = true;
+                                break;
+                              }
+                            }
+                          }
+                          return JoinedRoomCard(
+                            roomName: room.name,
+                            members: room.members.length,
+                            method: () {
+                              isAdmin
+                                  ? Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RoomScreenAdminOrMod(
+                                          room: room,
+                                          uid: uid,
+                                          roomId: docs[index].id,
+                                        ),
+                                      ),
+                                    )
+                                  : Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RoomScreen(
+                                          room: room,
+                                          roomId: docs[index].id,
+                                        ),
+                                      ),
+                                    );
+                            },
+                          );
                         },
                       );
                     },
