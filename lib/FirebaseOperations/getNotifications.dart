@@ -1,6 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 Future<List<DocumentSnapshot<Map<String, dynamic>>>> getNotifications() async {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  Set<String> joinedRoomIds = {};
+  if (uid != null) {
+    final userDoc =
+        await FirebaseFirestore.instance.collection('Users').doc(uid).get();
+    if (userDoc.exists && userDoc.data() != null) {
+      final memberAt = userDoc.data()!['MemberAt'] as List<dynamic>? ?? [];
+      for (var ref in memberAt) {
+        if (ref is DocumentReference) {
+          joinedRoomIds.add(ref.id);
+        }
+      }
+    }
+  }
+
   QuerySnapshot<Map<String, dynamic>> snapshot;
   try {
     snapshot = await FirebaseFirestore.instance
@@ -14,6 +30,19 @@ Future<List<DocumentSnapshot<Map<String, dynamic>>>> getNotifications() async {
   }
 
   var docs = snapshot.docs.toList();
+
+  if (joinedRoomIds.isNotEmpty) {
+    docs = docs.where((doc) {
+      final room = doc.data()['Room'];
+      if (room is String) {
+        return joinedRoomIds.contains(room);
+      } else if (room is DocumentReference) {
+        return joinedRoomIds.contains(room.id);
+      }
+      return false;
+    }).toList();
+  }
+
   docs.sort((a, b) {
     var aTime = a.data()['UploadTime'];
     var bTime = b.data()['UploadTime'];
@@ -26,9 +55,6 @@ Future<List<DocumentSnapshot<Map<String, dynamic>>>> getNotifications() async {
   });
 
   if (docs.length > 20) {
-    for (int i = 20; i < docs.length; i++) {
-      docs[i].reference.delete();
-    }
     docs = docs.sublist(0, 20);
   }
 
