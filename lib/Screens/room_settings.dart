@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/widgets/cards.dart';
 import 'package:notehive/widgets/leadingbackButton.dart';
 
 class RoomSettings extends StatefulWidget {
-  const RoomSettings({super.key});
+  final String? roomId;
+  const RoomSettings({super.key, this.roomId});
 
   @override
   State<RoomSettings> createState() => _RoomSettingsState();
@@ -19,6 +21,9 @@ class _RoomSettingsState extends State<RoomSettings> {
 
   bool privateRoom = true;
   bool onlyModeratorUpload = false;
+  bool isLoading = false;
+  bool isSaving = false;
+  bool hadAllCategory = false;
 
   List<String> departments = [
     'Computer Science & Engineering',
@@ -44,7 +49,128 @@ class _RoomSettingsState extends State<RoomSettings> {
     'Batch 2022',
   ];
 
-  List<String> categories = ['Note', 'Lab report'];
+  List<String> categories = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRoomSettings();
+  }
+
+  Future<void> _loadRoomSettings() async {
+    if (widget.roomId == null) return;
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('Rooms')
+          .doc(widget.roomId)
+          .get();
+      if (doc.exists && mounted) {
+        final data = doc.data()!;
+        roomNameController.text = data['Name'] ?? '';
+        institutionController.text = data['SchoolName'] ?? '';
+
+        final dept = data['Department'] as String?;
+        if (dept != null && dept.isNotEmpty) {
+          if (!departments.contains(dept)) {
+            departments.insert(0, dept);
+          }
+          selectedDepartment = dept;
+        }
+
+        final batch = (data['BatchYear'] ?? data['Batch']) as String?;
+        if (batch != null && batch.isNotEmpty) {
+          if (!batchYears.contains(batch)) {
+            batchYears.insert(0, batch);
+          }
+          selectedBatchYear = batch;
+        }
+
+        if (data['IsPublic'] != null) {
+          privateRoom = !(data['IsPublic'] as bool);
+        }
+        if (data['OnlyModeratorUpload'] != null) {
+          onlyModeratorUpload = data['OnlyModeratorUpload'] as bool;
+        }
+
+        final rawCategories = (data['Categories'] as List<dynamic>?) ?? [];
+        hadAllCategory = rawCategories.contains('All');
+        categories = rawCategories
+            .where((c) => c.toString() != 'All')
+            .map((c) => c.toString())
+            .toList();
+      }
+    } catch (e) {
+      debugPrint('Error loading room settings: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveSettings() async {
+    if (widget.roomId == null) {
+      Navigator.pop(context);
+      return;
+    }
+    setState(() {
+      isSaving = true;
+    });
+    try {
+      List<String> toSaveCategories = [];
+      if (hadAllCategory) {
+        toSaveCategories.add('All');
+      }
+      for (var cat in categories) {
+        if (cat != 'All' && !toSaveCategories.contains(cat)) {
+          toSaveCategories.add(cat);
+        }
+      }
+
+      Map<String, dynamic> updateData = {
+        'Name': roomNameController.text.trim(),
+        'SchoolName': institutionController.text.trim(),
+        'IsPublic': !privateRoom,
+        'OnlyModeratorUpload': onlyModeratorUpload,
+        'Categories': toSaveCategories,
+      };
+      if (selectedDepartment != null) {
+        updateData['Department'] = selectedDepartment;
+      }
+      if (selectedBatchYear != null) {
+        updateData['BatchYear'] = selectedBatchYear;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('Rooms')
+          .doc(widget.roomId)
+          .update(updateData);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Changes saved successfully')),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save changes: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -94,9 +220,12 @@ class _RoomSettingsState extends State<RoomSettings> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (newCategoryController.text.trim().isNotEmpty) {
+                final newCat = newCategoryController.text.trim();
+                if (newCat.isNotEmpty &&
+                    !categories.contains(newCat) &&
+                    newCat != 'All') {
                   setState(() {
-                    categories.add(newCategoryController.text.trim());
+                    categories.add(newCat);
                   });
                 }
                 Navigator.pop(context);
@@ -124,9 +253,11 @@ class _RoomSettingsState extends State<RoomSettings> {
       backgroundColor: Colors.white,
       appBar: appBar(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          child: Column(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
@@ -378,9 +509,7 @@ class _RoomSettingsState extends State<RoomSettings> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: isSaving ? null : _saveSettings,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF8474F0),
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -388,14 +517,23 @@ class _RoomSettingsState extends State<RoomSettings> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: Text(
-                    'Save Changes',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: isSaving
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Save Changes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: 20),

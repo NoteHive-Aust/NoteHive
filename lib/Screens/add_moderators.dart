@@ -186,39 +186,54 @@ class _AddModeratorsScreenState extends State<AddModeratorsScreen> {
                                             ),
                                           ),
                                           SizedBox(width: 8),
-                                          InkWell(
-                                            onTap: () => _removeMod(moderator),
+                                          Material(
+                                            color: Colors.transparent,
                                             borderRadius:
                                                 BorderRadius.circular(14),
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Color(0xFFFCE8EB),
-                                                borderRadius:
-                                                    BorderRadius.circular(14),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text(
-                                                    'Remove',
-                                                    style: TextStyle(
-                                                      color: Color(0xFFE55D73),
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 13,
+                                            clipBehavior: Clip.antiAlias,
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  _removeMod(moderator),
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              splashColor: Color(0xFFE55D73)
+                                                  .withOpacity(0.25),
+                                              highlightColor: Color(0xFFE55D73)
+                                                  .withOpacity(0.12),
+                                              hoverColor: Color(0xFFE55D73)
+                                                  .withOpacity(0.08),
+                                              child: Ink(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Color(0xFFFCE8EB),
+                                                  borderRadius:
+                                                      BorderRadius.circular(14),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      'Remove',
+                                                      style: TextStyle(
+                                                        color:
+                                                            Color(0xFFE55D73),
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 13,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  SizedBox(width: 4),
-                                                  Icon(
-                                                    Icons.close,
-                                                    color: Color(0xFFE55D73),
-                                                    size: 14,
-                                                  ),
-                                                ],
+                                                    SizedBox(width: 4),
+                                                    Icon(
+                                                      Icons.close,
+                                                      color: Color(0xFFE55D73),
+                                                      size: 14,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -342,23 +357,35 @@ class _AddModeratorsScreenState extends State<AddModeratorsScreen> {
                                               .withOpacity(0.6),
                                         ),
                                       ),
-                                      trailing: InkWell(
-                                        onTap: () => _addMod(member),
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: Container(
-                                          width: 38,
-                                          height: 38,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Color(0xFF352E60)
-                                                  .withOpacity(0.2),
+                                      trailing: Material(
+                                        color: Colors.transparent,
+                                        shape: const CircleBorder(),
+                                        clipBehavior: Clip.antiAlias,
+                                        child: InkWell(
+                                          onTap: () => _addMod(member),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          splashColor: Color(0xFF352E60)
+                                              .withOpacity(0.2),
+                                          highlightColor: Color(0xFF352E60)
+                                              .withOpacity(0.1),
+                                          hoverColor: Color(0xFF352E60)
+                                              .withOpacity(0.05),
+                                          child: Ink(
+                                            width: 38,
+                                            height: 38,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Color(0xFF352E60)
+                                                    .withOpacity(0.2),
+                                              ),
                                             ),
-                                          ),
-                                          child: Icon(
-                                            Icons.add,
-                                            color: Color(0xFF1A1730),
-                                            size: 20,
+                                            child: Icon(
+                                              Icons.add,
+                                              color: Color(0xFF1A1730),
+                                              size: 20,
+                                            ),
                                           ),
                                         ),
                                       ),
