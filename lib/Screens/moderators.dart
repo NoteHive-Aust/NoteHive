@@ -1,37 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/manageModerators.dart';
 import 'package:notehive/Screens/add_moderators.dart';
 import '../widgets/leadingbackButton.dart';
 
-class ModeratorData {
-  final String name;
-  final String role;
-  final bool isRemovable;
-
-  ModeratorData({
-    required this.name,
-    this.role = 'Moderator',
-    this.isRemovable = false,
-  });
-}
-
 class ModeratorsScreen extends StatefulWidget {
-  const ModeratorsScreen({super.key});
+  final String? roomId;
+  const ModeratorsScreen({super.key, this.roomId});
 
   @override
   State<ModeratorsScreen> createState() => _ModeratorsScreenState();
 }
 
 class _ModeratorsScreenState extends State<ModeratorsScreen> {
-  List<ModeratorData> moderatorList = [
-    ModeratorData(name: 'Rahim'),
-    ModeratorData(name: 'Karim'),
-    ModeratorData(name: 'Selim'),
-    ModeratorData(name: 'Rahim', isRemovable: true),
-  ];
-
+  List<RoomUserData> moderatorList = [];
+  bool isLoading = true;
   String searchQuery = '';
 
-  List<ModeratorData> get filteredModerators {
+  @override
+  void initState() {
+    super.initState();
+    _loadModerators();
+  }
+
+  Future<void> _loadModerators() async {
+    if (widget.roomId == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    final list = await getRoomModerators(widget.roomId!);
+    if (mounted) {
+      setState(() {
+        moderatorList = list;
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _removeMod(RoomUserData moderator) async {
+    if (widget.roomId == null) return;
+    setState(() {
+      moderatorList.removeWhere((m) => m.id == moderator.id);
+    });
+    await removeModerator(widget.roomId!, moderator.reference);
+  }
+
+  List<RoomUserData> get filteredModerators {
     if (searchQuery.isEmpty) return moderatorList;
     return moderatorList
         .where((m) => m.name.toLowerCase().contains(searchQuery.toLowerCase()))
@@ -64,13 +82,15 @@ class _ModeratorsScreenState extends State<ModeratorsScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: InkWell(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AddModeratorsScreen(),
+                    builder: (context) =>
+                        AddModeratorsScreen(roomId: widget.roomId),
                   ),
                 );
+                _loadModerators();
               },
               borderRadius: BorderRadius.circular(24),
               child: Container(
@@ -127,119 +147,138 @@ class _ModeratorsScreenState extends State<ModeratorsScreen> {
             ),
             SizedBox(height: 8),
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Color(0xFF352E60).withOpacity(0.1),
-                      ),
-                    ),
-                    child: Column(
-                      children: List.generate(list.length, (index) {
-                        final moderator = list[index];
-                        final isLast = index == list.length - 1;
-
-                        return Column(
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : list.isEmpty
+                      ? Center(
+                          child: Text(
+                            searchQuery.isEmpty
+                                ? 'No moderators found'
+                                : 'No matching moderators',
+                            style: TextStyle(
+                              color: Color(0xFF352E60).withOpacity(0.6),
+                              fontSize: 15,
+                            ),
+                          ),
+                        )
+                      : ListView(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
                           children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 6,
-                              ),
-                              leading: CircleAvatar(
-                                radius: 24,
-                                backgroundColor: Color(0xFFE6D3BA),
-                                foregroundImage: AssetImage('assets/image.jpg'),
-                              ),
-                              title: Text(
-                                moderator.name,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1A1730),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Color(0xFF352E60).withOpacity(0.1),
                                 ),
                               ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF2E2A4A),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Text(
-                                      moderator.role,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  if (moderator.isRemovable) ...[
-                                    SizedBox(width: 8),
-                                    InkWell(
-                                      onTap: () {},
-                                      borderRadius: BorderRadius.circular(14),
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 10,
+                              child: Column(
+                                children: List.generate(list.length, (index) {
+                                  final moderator = list[index];
+                                  final isLast = index == list.length - 1;
+
+                                  return Column(
+                                    children: [
+                                      ListTile(
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 16,
                                           vertical: 6,
                                         ),
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFFCE8EB),
-                                          borderRadius:
-                                              BorderRadius.circular(14),
+                                        leading: CircleAvatar(
+                                          radius: 24,
+                                          backgroundColor: Color(0xFFE6D3BA),
+                                          foregroundImage: (moderator.profileImage != null &&
+                                                  moderator.profileImage!.isNotEmpty)
+                                              ? NetworkImage(moderator.profileImage!)
+                                              : AssetImage('assets/image.jpg'),
                                         ),
-                                        child: Row(
+                                        title: Text(
+                                          moderator.name,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF1A1730),
+                                          ),
+                                        ),
+                                        trailing: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Text(
-                                              'Remove',
-                                              style: TextStyle(
-                                                color: Color(0xFFE55D73),
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 13,
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 14,
+                                                vertical: 6,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Color(0xFF2E2A4A),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
+                                              child: Text(
+                                                'Moderator',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
-                                            SizedBox(width: 4),
-                                            Icon(
-                                              Icons.close,
-                                              color: Color(0xFFE55D73),
-                                              size: 14,
+                                            SizedBox(width: 8),
+                                            InkWell(
+                                              onTap: () => _removeMod(moderator),
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Color(0xFFFCE8EB),
+                                                  borderRadius:
+                                                      BorderRadius.circular(14),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      'Remove',
+                                                      style: TextStyle(
+                                                        color: Color(0xFFE55D73),
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 13,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Icon(
+                                                      Icons.close,
+                                                      color: Color(0xFFE55D73),
+                                                      size: 14,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ],
+                                      if (!isLast)
+                                        Divider(
+                                          height: 1,
+                                          thickness: 1,
+                                          indent: 16,
+                                          endIndent: 16,
+                                          color: Color(0xFF352E60)
+                                              .withOpacity(0.08),
+                                        ),
+                                    ],
+                                  );
+                                }),
                               ),
                             ),
-                            if (!isLast)
-                              Divider(
-                                height: 1,
-                                thickness: 1,
-                                indent: 16,
-                                endIndent: 16,
-                                color: Color(0xFF352E60).withOpacity(0.08),
-                              ),
+                            SizedBox(height: 20),
                           ],
-                        );
-                      }),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                ],
-              ),
+                        ),
             ),
           ],
         ),

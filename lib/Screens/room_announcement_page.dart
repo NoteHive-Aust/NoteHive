@@ -111,7 +111,10 @@ class _RoomAnnouncementPageState extends State<RoomAnnouncementPage> {
               if (value == 'moderators') {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ModeratorsScreen()),
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ModeratorsScreen(roomId: widget.roomId),
+                  ),
                 );
               }
             },
