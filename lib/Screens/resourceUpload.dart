@@ -11,11 +11,12 @@ import 'dart:typed_data';
 class ResourceUploadScreen extends StatefulWidget {
   final String roomId;
   final bool isAdmin;
+  final List<String> categories;
 
   const ResourceUploadScreen({
     super.key,
     required this.roomId,
-    required this.isAdmin,
+    required this.isAdmin, required this.categories,
   });
 
   @override
@@ -33,13 +34,7 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
   String? descriptionError;
   String? fileError;
 
-  final List<String> categories = [
-    'Notes',
-    'Question Bank',
-    'Lab Report',
-    'Book / Reference',
-    'Lecture Slides',
-  ];
+
 
   Future<void> pickPdfFile() async {
     try {
@@ -321,7 +316,7 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
             Icons.keyboard_arrow_down_rounded,
             color: const Color(0xFF352E60).withOpacity(0.5),
           ),
-          items: categories.map((String category) {
+          items: widget.categories.map((String category) {
             return DropdownMenuItem<String>(
               value: category,
               child: Text(

@@ -66,7 +66,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
       floatingActionButton: floatingUploadButton(
         context: context,
         roomId: widget.roomId,
-        isAdmin: true,
+        isAdmin: true, categories: widget.room.categories,
       ),
       endDrawer: DrawerWidget(context),
       appBar: AppbarWidget(context),

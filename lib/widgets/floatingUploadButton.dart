@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:notehive/Screens/resourceUpload.dart';
 
 SizedBox floatingUploadButton({
+  required List categories,
   required BuildContext context,
   required String roomId,
   required bool isAdmin,
@@ -18,7 +19,7 @@ SizedBox floatingUploadButton({
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: ((context) => ResourceUploadScreen(roomId: roomId,isAdmin:isAdmin,)),
+            builder: ((context) => ResourceUploadScreen(roomId: roomId,isAdmin:isAdmin,categories: <String>[...categories],)),
           ),
         );
       },
