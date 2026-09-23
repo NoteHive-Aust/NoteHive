@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/auth_services.dart';
+import 'package:notehive/FirebaseOperations/getUserProfile.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Screens/pageController.dart';
 import 'package:notehive/Screens/my_uploads.dart';
@@ -17,112 +19,131 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
+    String uid = AuthServices.instance.uid;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: appBar(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: 100, left: 20, right: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(width: double.infinity),
-              SizedBox(height: 56),
-              CircleAvatar(radius: 60, child: Icon(Icons.person, size: 80)),
-              SizedBox(height: 20),
-              Text(
-                'Student Name',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A1730),
-                ),
-              ),
-              SizedBox(height: 3),
-              Text(
-                'Ahsanullah University of Science & Technology',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF352E60).withOpacity(0.6),
-                ),
-              ),
-              SizedBox(height: 20),
-              infoCard(
-                email: 'student@gmail.com',
-                totalUploads: '34',
-                repPoints: '1,200',
-                rooms: '4',
-              ),
-              SizedBox(height: 40),
-              titleMaker(
-                label: 'Joined Rooms',
-                method: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Pagecontroller()),
-                  );
-                },
-              ),
-              SizedBox(height: 20),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: 3,
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 10);
-                },
-                itemBuilder: (context, index) {
-                  return JoinedRoomCard(
-                    roomName: 'Box er Class',
-                    members: 130,
+        child: FutureBuilder(
+          future: getUserProfile(uid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            var data = snapshot.data!.data()!;
+            String name = data['Name'] ?? '';
+            String schoolName = data['SchoolName'] ?? '';
+            String email = data['Email'] ?? '';
+            int totalUploads = data['TotalUpLoads'] ?? 0;
+            int repPoints = data['RepPoints'] ?? 0;
+            List memberAt = data['MemberAt'] ?? [];
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: 100, left: 20, right: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(width: double.infinity),
+                  SizedBox(height: 56),
+                  CircleAvatar(radius: 60, child: Icon(Icons.person, size: 80)),
+                  SizedBox(height: 20),
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1730),
+                    ),
+                  ),
+                  SizedBox(height: 3),
+                  Text(
+                    schoolName,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF352E60).withOpacity(0.6),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  infoCard(
+                    email: email,
+                    totalUploads: '$totalUploads',
+                    repPoints: '$repPoints',
+                    rooms: '${memberAt.length}',
+                  ),
+                  SizedBox(height: 40),
+                  titleMaker(
+                    label: 'Joined Rooms',
                     method: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => RoomScreenAdminOrMod(
-                      //       room: Room(
-                      //         name: 'Box er Class',
-                      //         schoolName: 'AUST University',
-                      //         roomCode: 'AJ48I3',
-                      //         admin: User(name: 'Shaheer', memberAt: []),
-                      //         moderators: [],
-                      //       ),
-                      //     ),
-                      //   ),
-                      // );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Pagecontroller()),
+                      );
                     },
-                  );
-                },
+                  ),
+                  SizedBox(height: 20),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: 3,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 10);
+                    },
+                    itemBuilder: (context, index) {
+                      return JoinedRoomCard(
+                        roomName: 'Box er Class',
+                        members: 130,
+                        method: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => RoomScreenAdminOrMod(
+                          //       room: Room(
+                          //         name: 'Box er Class',
+                          //         schoolName: 'AUST University',
+                          //         roomCode: 'AJ48I3',
+                          //         admin: User(name: 'Shaheer', memberAt: []),
+                          //         moderators: [],
+                          //       ),
+                          //     ),
+                          //   ),
+                          // );
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 40),
+                  titleMaker(
+                    label: 'My Uploads',
+                    method: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyUploads()),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: 3,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 10);
+                    },
+                    itemBuilder: (context, index) {
+                      return MyUploadsCard(
+                        title: 'DS Question Bank',
+                        subtitle: 'CSE 2103. Fall2025. Question Bank',
+                        method: () {},
+                      );
+                    },
+                  ),
+                ],
               ),
-              SizedBox(height: 40),
-              titleMaker(
-                label: 'My Uploads',
-                method: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyUploads()),
-                  );
-                },
-              ),
-              SizedBox(height: 20),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: 3,
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 10);
-                },
-                itemBuilder: (context, index) {
-                  return MyUploadsCard(
-                    title: 'DS Question Bank',
-                    subtitle: 'CSE 2103. Fall2025. Question Bank',
-                    method: () {},
-                  );
-                },
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
