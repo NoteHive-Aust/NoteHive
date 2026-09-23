@@ -60,7 +60,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: floatingUploadButton(context: context),
+      floatingActionButton: floatingUploadButton(context: context, roomId: widget.roomId),
       endDrawer: DrawerWidget(context),
       appBar: AppbarWidget(context),
       body: Padding(
