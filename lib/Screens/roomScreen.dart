@@ -49,7 +49,7 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: isModeratorUpload
-          ? floatingUploadButton(context: context, roomId: widget.roomId,isAdmin: false)
+          ? floatingUploadButton(context: context, roomId: widget.roomId,isAdmin: false,categories: widget.room.categories)
           : null,
       appBar: AppBar(
         leadingWidth: 70,
