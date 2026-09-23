@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:notehive/FirebaseOperations/auth_services.dart';
 import 'package:notehive/Structures/resourcesStructure.dart';
 import '../FirebaseOperations/getRoomResources.dart';
 import '../widgets/leadingbackButton.dart';
@@ -6,6 +10,7 @@ import '../widgets/leadingbackButton.dart';
 class ResourceDetailsScreen extends StatefulWidget {
   final Resource resource;
   final String resourceId;
+
   const ResourceDetailsScreen({
     super.key,
     required this.resource,
@@ -13,16 +18,147 @@ class ResourceDetailsScreen extends StatefulWidget {
   });
 
   @override
-  State<ResourceDetailsScreen> createState() => _ResourceDetailsScreenState();
+  State<ResourceDetailsScreen> createState() => ResourceDetailsScreenState();
 }
 
-class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
-  final TextEditingController _commentController = TextEditingController();
+class ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
+  final TextEditingController commentController = TextEditingController();
+  bool isDownloading = false;
+  bool isPostingComment = false;
+  String? downloadError;
+  Future<QuerySnapshot>? commentsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    commentsFuture = getComments(resourceId: widget.resourceId);
+  }
 
   @override
   void dispose() {
-    _commentController.dispose();
+    commentController.dispose();
     super.dispose();
+  }
+
+  Future<void> handleDownload() async {
+    setState(() {
+      isDownloading = true;
+      downloadError = null;
+    });
+
+    try {
+      final http.Response response = await http.get(
+        Uri.parse(widget.resource.resourceUrl),
+      );
+
+      if (response.statusCode == 200) {
+        final String fileName = widget.resource.title.replaceAll(' ', '_');
+        final String downloadsPath = '/storage/emulated/0/Download';
+        final Directory downloadsDir = Directory(downloadsPath);
+        if (!await downloadsDir.exists()) {
+          await downloadsDir.create(recursive: true);
+        }
+        final String filePath = '$downloadsPath/$fileName.pdf';
+        final File file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        await FirebaseFirestore.instance
+            .collection('Resources')
+            .doc(widget.resourceId)
+            .update({'Downloads': FieldValue.increment(1)});
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Downloaded to: $filePath'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      } else {
+        setState(() {
+          downloadError = 'Download failed (${response.statusCode})';
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(downloadError!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        downloadError = 'Error: $e';
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() => isDownloading = false);
+    }
+  }
+
+  Future<void> handlePostComment() async {
+    final String text = commentController.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() => isPostingComment = true);
+
+    try {
+      final String uid = AuthServices.instance.uid;
+      final DocumentSnapshot userSnap = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(uid)
+          .get();
+
+      final Map<String, dynamic> userData =
+          userSnap.data() as Map<String, dynamic>;
+
+      await FirebaseFirestore.instance
+          .collection('Resources')
+          .doc(widget.resourceId)
+          .collection('Comments')
+          .add({
+        'Author': userData['Name'] ?? '',
+        'ImageUrl': userData['ProfileImage'] ?? '',
+        'Comment': text,
+        'time': FieldValue.serverTimestamp(),
+      });
+
+      commentController.clear();
+
+      setState(() {
+        commentsFuture = getComments(resourceId: widget.resourceId);
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Comment posted!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to post comment: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() => isPostingComment = false);
+    }
   }
 
   @override
@@ -34,7 +170,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
         elevation: 0,
         leadingWidth: 70,
         leading: LeadingBackButton(context),
-        title: const Text(
+        title: Text(
           'Resource Details',
           style: TextStyle(
             fontSize: 20,
@@ -44,36 +180,36 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPreviewCard(),
-            const SizedBox(height: 20),
-            _buildTitleAndTag(),
-            const SizedBox(height: 16),
-            _buildUploaderInfo(),
-            const SizedBox(height: 20),
-            _buildDescriptionSection(),
-            const SizedBox(height: 20),
-            _buildStatsCard(),
-            const SizedBox(height: 20),
-            _buildActionButtons(),
-            const SizedBox(height: 28),
-            _buildCommentsSection(),
-            const SizedBox(height: 20),
+            buildPreviewCard(),
+            SizedBox(height: 20),
+            buildTitleAndTag(),
+            SizedBox(height: 16),
+            buildUploaderInfo(),
+            SizedBox(height: 20),
+            buildDescriptionSection(),
+            SizedBox(height: 20),
+            buildStatsCard(),
+            SizedBox(height: 20),
+            buildActionButtons(),
+            SizedBox(height: 28),
+            buildCommentsSection(),
+            SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPreviewCard() {
+  Widget buildPreviewCard() {
     return Container(
       width: double.infinity,
       height: 173,
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F3F8),
+        color: Color(0xFFF4F3F8),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
@@ -82,21 +218,21 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           Icon(
             Icons.insert_drive_file_outlined,
             size: 64,
-            color: const Color(0xFF352E60).withOpacity(0.5),
+            color: Color(0xFF352E60).withOpacity(0.5),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2E2A4A),
+              backgroundColor: Color(0xFF2E2A4A),
               foregroundColor: Colors.white,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 22, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
-            child: const Text(
+            child: Text(
               'Open full preview',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
             ),
@@ -106,7 +242,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     );
   }
 
-  Widget _buildTitleAndTag() {
+  Widget buildTitleAndTag() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -119,13 +255,13 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             height: 1.2,
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFF352E60).withOpacity(0.04),
+            color: Color(0xFF352E60).withOpacity(0.04),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
+            border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
           ),
           child: Text(
             widget.resource.category,
@@ -140,15 +276,15 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     );
   }
 
-  Widget _buildUploaderInfo() {
+  Widget buildUploaderInfo() {
     return Row(
       children: [
-        const CircleAvatar(
+        CircleAvatar(
           radius: 22,
           backgroundColor: Color(0xFFE6D3BA),
           foregroundImage: AssetImage('assets/image.jpg'),
         ),
-        const SizedBox(width: 14),
+        SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,13 +297,13 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                   color: Color(0xFF1A1730),
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 widget.resource.authorSchoolName,
                 style: TextStyle(
                   fontSize: 13,
                   fontFamily: 'paragraph',
-                  color: const Color(0xFF352E60).withOpacity(0.6),
+                  color: Color(0xFF352E60).withOpacity(0.6),
                 ),
               ),
             ],
@@ -176,10 +312,10 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
         RichText(
           textAlign: TextAlign.end,
           text: TextSpan(
-            style: const TextStyle(fontFamily: 'paragraph'),
+            style: TextStyle(fontFamily: 'paragraph'),
             children: [
-              const TextSpan(
-                text: '3.2 MB  ',
+              TextSpan(
+                text: 'PDF  ',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -192,7 +328,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                     : '${DateTime.now().difference(widget.resource.time).inDays}d ago',
                 style: TextStyle(
                   fontSize: 13,
-                  color: const Color(0xFF352E60).withOpacity(0.6),
+                  color: Color(0xFF352E60).withOpacity(0.6),
                 ),
               ),
             ],
@@ -202,11 +338,11 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     );
   }
 
-  Widget _buildDescriptionSection() {
+  Widget buildDescriptionSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Description',
           style: TextStyle(
             fontSize: 18,
@@ -214,13 +350,13 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             color: Color(0xFF1A1730),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           widget.resource.description,
           style: TextStyle(
             fontSize: 14,
             fontFamily: 'paragraph',
-            color: const Color(0xFF352E60).withOpacity(0.6),
+            color: Color(0xFF352E60).withOpacity(0.6),
             height: 1.5,
           ),
         ),
@@ -228,21 +364,21 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     );
   }
 
-  Widget _buildStatsCard() {
+  Widget buildStatsCard() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
+        border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Downloads',
                   style: TextStyle(
                     fontSize: 18,
@@ -252,7 +388,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                 ),
                 Text(
                   widget.resource.downloads.toString(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1A1730),
@@ -264,10 +400,10 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           Divider(
             height: 1,
             thickness: 1,
-            color: const Color(0xFF352E60).withOpacity(0.08),
+            color: Color(0xFF352E60).withOpacity(0.08),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -295,21 +431,30 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget buildActionButtons() {
     return Row(
       children: [
         Expanded(
           child: SizedBox(
             height: 54,
             child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.file_download_outlined,
-                color: Colors.white,
-                size: 22,
-              ),
-              label: const Text(
-                'Download',
+              onPressed: isDownloading ? null : handleDownload,
+              icon: isDownloading
+                  ? SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Icon(
+                      Icons.file_download_outlined,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+              label: Text(
+                isDownloading ? 'Downloading...' : 'Download',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -317,7 +462,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF8474F0),
+                backgroundColor: Color(0xFF8474F0),
+                disabledBackgroundColor: Color(0xFF8474F0).withOpacity(0.6),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -326,18 +472,18 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Container(
           width: 54,
           height: 54,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
+            border: Border.all(color: Color(0xFF352E60).withOpacity(0.1)),
           ),
           child: IconButton(
             onPressed: () {},
-            icon: const Icon(
+            icon: Icon(
               Icons.share_outlined,
               color: Color(0xFF1A1730),
               size: 22,
@@ -348,7 +494,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     );
   }
 
-  Widget _buildCommentsSection() {
+  Widget buildCommentsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -356,37 +502,18 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Comments (${widget.resource.comments.length})',
+              'Comments',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF1A1730),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: const Color(0xFF352E60).withOpacity(0.12),
-                ),
-              ),
-              child: const Text(
-                'See All',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1A1730),
-                ),
-              ),
-            ),
           ],
         ),
-        const SizedBox(height: 14),
-        // _buildCommentCard(comment: widget.resource.comments[0]),
-        FutureBuilder(
-          future: getComments(resourceId: widget.resourceId),
+        SizedBox(height: 14),
+        FutureBuilder<QuerySnapshot>(
+          future: commentsFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -394,77 +521,105 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
+            if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: 14),
+                child: Text(
+                  'No comments yet. Be the first!',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontFamily: 'paragraph',
+                    color: Color(0xFF352E60).withOpacity(0.5),
+                  ),
+                ),
+              );
+            }
             return ListView.separated(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => _buildCommentCard(
+              itemCount: snapshot.data!.docs.length,
+              separatorBuilder: (context, index) => SizedBox(height: 12),
+              itemBuilder: (context, index) => buildCommentCard(
                 comment: Comment.fromMap(
                   snapshot.data!.docs[index].data() as Map<String, dynamic>,
                 ),
               ),
-              separatorBuilder: (context, index) => SizedBox(height: 12),
-              itemCount: snapshot.data!.docs.length,
             );
           },
         ),
-
-        // const SizedBox(height: 12),
-        // _buildCommentCard(comment: widget.resource.comments[0]),
-        // const SizedBox(height: 20),
+        SizedBox(height: 16),
         Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 20,
               backgroundColor: Color(0xFFE6D3BA),
               foregroundImage: AssetImage('assets/image.jpg'),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Container(
                 height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF352E60).withOpacity(0.04),
+                  color: Color(0xFF352E60).withOpacity(0.04),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: TextField(
-                  controller: _commentController,
+                  controller: commentController,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: 'Add a comment...',
                     hintStyle: TextStyle(
                       fontSize: 14,
                       fontFamily: 'paragraph',
-                      color: const Color(0xFF352E60).withOpacity(0.4),
+                      color: Color(0xFF352E60).withOpacity(0.4),
                     ),
                   ),
                 ),
               ),
             ),
+            SizedBox(width: 10),
+            isPostingComment
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFF8474F0),
+                    ),
+                  )
+                : IconButton(
+                    onPressed: handlePostComment,
+                    icon: Icon(
+                      Icons.send_rounded,
+                      color: Color(0xFF8474F0),
+                      size: 26,
+                    ),
+                  ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildCommentCard({required Comment comment}) {
+  Widget buildCommentCard({required Comment comment}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CircleAvatar(
+        CircleAvatar(
           radius: 18,
           backgroundColor: Color(0xFFE6D3BA),
           foregroundImage: AssetImage('assets/image.jpg'),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: const Color(0xFF352E60).withOpacity(0.1),
+                color: Color(0xFF352E60).withOpacity(0.1),
               ),
             ),
             child: Column(
@@ -488,18 +643,18 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontFamily: 'paragraph',
-                        color: const Color(0xFF352E60).withOpacity(0.5),
+                        color: Color(0xFF352E60).withOpacity(0.5),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(
                   comment.comment,
                   style: TextStyle(
                     fontSize: 13,
                     fontFamily: 'paragraph',
-                    color: const Color(0xFF352E60).withOpacity(0.6),
+                    color: Color(0xFF352E60).withOpacity(0.6),
                     height: 1.4,
                   ),
                 ),
