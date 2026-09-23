@@ -1,47 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getRoomMembers.dart';
 import '../widgets/leadingbackButton.dart';
-import '../widgets/searchBox.dart';
 
 class MembersScreen extends StatefulWidget {
-  const MembersScreen({super.key});
+  final String? roomId;
+  final String? currentUserUid;
+
+  const MembersScreen({super.key, this.roomId, this.currentUserUid});
 
   @override
   State<MembersScreen> createState() => _MembersScreenState();
 }
 
 class _MembersScreenState extends State<MembersScreen> {
-  final List<_MemberData> adminList = [
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Admin'),
-  ];
-
-  final List<_MemberData> moderatorList = [
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Moderator'),
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Moderator'),
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Moderator'),
-  ];
-
-  final List<_MemberData> memberList = [
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Member'),
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Member'),
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Member'),
-    _MemberData(name: 'Rahim', uploads: 42, role: 'Member', isKickable: true),
-  ];
-
   String searchQuery = '';
+  late Future<RoomMembersData> _future;
 
-  List<_MemberData> _filterMembers(List<_MemberData> members) {
-    if (searchQuery.isEmpty) return members;
-    return members
-        .where((m) => m.name.toLowerCase().contains(searchQuery.toLowerCase()))
+  @override
+  void initState() {
+    super.initState();
+    _future = getRoomMembers(roomId: widget.roomId ?? '');
+  }
+
+  void _reload() => setState(() {
+        _future = getRoomMembers(roomId: widget.roomId ?? '');
+      });
+
+  List<UserDoc> _filter(List<UserDoc> list) {
+    if (searchQuery.isEmpty) return list;
+    return list
+        .where((u) => u.name.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredAdmins = _filterMembers(adminList);
-    final filteredModerators = _filterMembers(moderatorList);
-    final filteredMembers = _filterMembers(memberList);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -68,11 +61,7 @@ class _MembersScreenState extends State<MembersScreen> {
                 color: Color(0xFF352E60).withOpacity(0.05),
               ),
               child: TextField(
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
-                },
+                onChanged: (v) => setState(() => searchQuery = v),
                 maxLines: 1,
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -83,32 +72,81 @@ class _MembersScreenState extends State<MembersScreen> {
             ),
           ),
           SizedBox(height: 10),
+
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: 18),
-              children: [
-                if (filteredAdmins.isNotEmpty)
-                  _buildRoleSection(filteredAdmins),
-                if (filteredModerators.isNotEmpty) ...[
-                  SizedBox(height: 14),
-                  _buildRoleSection(filteredModerators),
-                ],
-                if (filteredMembers.isNotEmpty) ...[
-                  SizedBox(height: 14),
-                  _buildRoleSection(filteredMembers),
-                ],
-                SizedBox(height: 14),
-                _buildShowMoreButton(136),
-                SizedBox(height: 24),
-              ],
-            ),
+            child: widget.roomId == null || widget.roomId!.isEmpty
+                ? _buildDummyList()
+                : FutureBuilder<RoomMembersData>(
+                    future: _future,
+                    builder: (context, snap) {
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (snap.hasError) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Text(
+                              'Could not load members.\n${snap.error}',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.red[400]),
+                            ),
+                          ),
+                        );
+                      }
+
+                      final data = snap.data!;
+                      final uid = widget.currentUserUid ?? '';
+                      final bool canKick = data.admin.uid == uid ||
+                          data.moderators.any((m) => m.uid == uid);
+
+                      final admins = _filter([data.admin]);
+                      final mods = _filter(data.moderators);
+                      final members = _filter(data.members);
+
+                      return ListView(
+                        padding: EdgeInsets.symmetric(horizontal: 18),
+                        children: [
+                          if (admins.isNotEmpty) ...[
+                            _buildSection(admins, 'Admin',
+                                canKick: false),
+                          ],
+                          if (mods.isNotEmpty) ...[
+                            SizedBox(height: 14),
+                            _buildSection(mods, 'Moderator',
+                                canKick: false),
+                          ],
+                          if (members.isNotEmpty) ...[
+                            SizedBox(height: 14),
+                            _buildSection(members, 'Member',
+                                canKick: canKick,
+                                roomId: widget.roomId!),
+                          ],
+                          if (admins.isEmpty && mods.isEmpty && members.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 60),
+                              child: Center(
+                                child: Text('No members found.',
+                                    style: TextStyle(color: Colors.grey)),
+                              ),
+                            ),
+                          SizedBox(height: 24),
+                        ],
+                      );
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRoleSection(List<_MemberData> members) {
+  Widget _buildSection(
+    List<UserDoc> users,
+    String role, {
+    bool canKick = false,
+    String? roomId,
+  }) {
     return Card(
       color: Colors.white,
       elevation: 0,
@@ -119,156 +157,133 @@ class _MembersScreenState extends State<MembersScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: Column(
-          children: List.generate(members.length, (index) {
-            return _buildMemberTile(members[index]);
-          }),
+          children: users.map((u) {
+            final ImageProvider avatar = u.profileUrl.isNotEmpty
+                ? NetworkImage(u.profileUrl)
+                : AssetImage('assets/image.jpg') as ImageProvider;
+
+            return ListTile(
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              leading: CircleAvatar(
+                radius: 24,
+                backgroundColor: Color(0xFFE6D3BA),
+                backgroundImage: avatar,
+              ),
+              title: Text(
+                u.name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1730),
+                ),
+              ),
+              subtitle: Text(
+                '${u.totalUploads} Uploads',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontFamily: 'paragraph',
+                  color: Color(0xFF352E60).withOpacity(0.6),
+                  height: 1.5,
+                ),
+              ),
+              trailing: (canKick && role == 'Member')
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _roleBadge(role),
+                        SizedBox(width: 8),
+                        _kickButton(u.uid, roomId!),
+                      ],
+                    )
+                  : _roleBadge(role),
+            );
+          }).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildMemberTile(_MemberData member) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: CircleAvatar(
-        radius: 24,
-        backgroundColor: Color(0xFFE6D3BA),
-        foregroundImage: AssetImage('assets/image.jpg'),
-      ),
-      title: Text(
-        member.name,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: Color(0xFF1A1730),
-        ),
-      ),
-      subtitle: Text(
-        '${member.uploads} Uploads',
-        style: TextStyle(
-          fontSize: 13,
-          fontFamily: 'paragraph',
-          color: Color(0xFF352E60).withOpacity(0.6),
-          height: 1.5,
-        ),
-      ),
-      trailing: member.isKickable
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildRoleBadge(member.role, member.role),
-                SizedBox(width: 8),
-                _buildKickButton(),
-              ],
-            )
-          : _buildRoleBadge(member.role, member.role),
-    );
-  }
-
-  Widget _buildRoleBadge(String role, String label) {
-    Color bgColor;
-    Color textColor;
-    Color borderColor;
-
-    switch (role) {
-      case 'Admin':
-        bgColor = Color(0xFF8474F0);
-        textColor = Colors.white;
-        borderColor = Colors.transparent;
-        break;
-      case 'Moderator':
-        bgColor = Color(0xFF2E2A4A);
-        textColor = Colors.white;
-        borderColor = Colors.transparent;
-        break;
-      default:
-        bgColor = Colors.white;
-        textColor = Color(0xFF1A1730);
-        borderColor = Color(0xFF352E60).withOpacity(0.1);
-    }
-
+  Widget _roleBadge(String role) {
+    final colors = {
+      'Admin': (Color(0xFF8474F0), Colors.white, Colors.transparent),
+      'Moderator': (Color(0xFF2E2A4A), Colors.white, Colors.transparent),
+    };
+    final c = colors[role] ??
+        (Colors.white, Color(0xFF1A1730), Color(0xFF352E60).withOpacity(0.1));
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: c.$1,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor, width: 1.5),
+        border: Border.all(color: c.$3 as Color, width: 1.5),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildKickButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Color(0xFFFCE8EB),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Kick',
-            style: TextStyle(
-              color: Color(0xFFE55D73),
-              fontWeight: FontWeight.w700,
+      child: Text(role,
+          style: TextStyle(
+              color: c.$2 as Color,
               fontSize: 13,
-            ),
-          ),
-          SizedBox(width: 4),
-          Icon(Icons.close, color: Color(0xFFE55D73), size: 14),
-        ],
-      ),
+              fontWeight: FontWeight.w700)),
     );
   }
 
-  Widget _buildShowMoreButton(int count) {
-    return Card(
-      color: Colors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Color(0xFF352E60).withOpacity(.1)),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {},
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Center(
-            child: Text(
-              'Show $count more members',
-              style: TextStyle(
-                color: Color(0xFF1A1730),
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+  Widget _kickButton(String memberUid, String roomId) {
+    return GestureDetector(
+      onTap: () async {
+        final ok = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Kick Member'),
+            content: Text('Remove this member from the room?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text('Cancel'),
               ),
-            ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text('Kick',
+                    style: TextStyle(color: Color(0xFFE55D73))),
+              ),
+            ],
           ),
+        );
+        if (ok == true) {
+          await kickMember(roomId: roomId, memberUid: memberUid);
+          _reload();
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: Color(0xFFFCE8EB),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Kick',
+                style: TextStyle(
+                    color: Color(0xFFE55D73),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13)),
+            SizedBox(width: 4),
+            Icon(Icons.close, color: Color(0xFFE55D73), size: 14),
+          ],
         ),
       ),
     );
   }
-}
 
-class _MemberData {
-  final String name;
-  final int uploads;
-  final String role;
-  final bool isKickable;
-
-  _MemberData({
-    required this.name,
-    required this.uploads,
-    required this.role,
-    this.isKickable = false,
-  });
+  Widget _buildDummyList() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32),
+        child: Text(
+          'Open this page from inside a room to see members.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
+  }
 }

@@ -316,7 +316,10 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
             DrawerWidgets(
               method: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => MembersScreen()),
+                  MaterialPageRoute(builder: (context) => MembersScreen(
+                    roomId: widget.roomId,
+                    currentUserUid: widget.uid,
+                  )),
                 );
               },
               text: 'Members',
