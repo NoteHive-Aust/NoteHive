@@ -34,8 +34,10 @@ class Resource {
   final int downloads;
   final int views;
   final DateTime time;
+  final bool approved;
   List<Comment> comments=[];
   Resource({
+    required this.approved,
     required this.roomID,
     required this.title,
     required this.category,
@@ -50,6 +52,23 @@ class Resource {
   });
   factory Resource.fromMap(Map<String, dynamic> data) {
     return Resource(
+      approved: data['Approved'],
+      roomID: data['RoomID'],
+      time: (data['time'] as Timestamp).toDate(),
+      title: data['Title'],
+      category: data['Category'],
+      description: data['Description'],
+      resourceUrl: data['ResourceUrl'],
+      authorName: data['AuthorName'],
+      authorSchoolName: data['AuthorSchoolName'],
+      downloads: data['Downloads'],
+      views: data['Veiws'],
+    );
+  }
+  Resource toMap(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data()!;
+    return Resource(
+      approved: data['Approved'],
       roomID: data['RoomID'],
       time: (data['time'] as Timestamp).toDate(),
       title: data['Title'],

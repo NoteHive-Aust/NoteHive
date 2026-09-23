@@ -3,14 +3,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notehive/FirebaseOperations/createAnnouncements.dart';
+import 'package:notehive/FirebaseOperations/getRoomResources.dart';
 import 'package:notehive/Screens/members.dart';
 import 'package:notehive/Screens/moderators.dart';
 import 'package:notehive/Screens/pageController.dart';
 import 'package:notehive/Screens/pendingApproval.dart';
+import 'package:notehive/Screens/resourceDetails.dart';
 import 'package:notehive/Screens/roomScreen.dart';
 import 'package:notehive/Screens/room_announcement_page.dart';
 import 'package:notehive/Screens/room_settings.dart';
 import 'package:notehive/Structures/announcements.dart';
+import 'package:notehive/Structures/resourcesStructure.dart';
 import 'package:notehive/widgets/leadingTitleAndTailButton.dart';
 import 'package:notehive/widgets/leadingbackButton.dart';
 
@@ -60,7 +63,11 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: floatingUploadButton(context: context, roomId: widget.roomId),
+      floatingActionButton: floatingUploadButton(
+        context: context,
+        roomId: widget.roomId,
+        isAdmin: true,
+      ),
       endDrawer: DrawerWidget(context),
       appBar: AppbarWidget(context),
       body: Padding(
@@ -98,43 +105,61 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 buttonText: widget.room.pendingApprovals.length.toString(),
                 method: () {},
               ),
-              ListView.separated(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                //padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                itemCount: widget.room.pendingApprovals.length < 3
-                    ? widget.room.pendingApprovals.length
-                    : 3,
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 10);
-                },
-                itemBuilder: (context, index) {
-                  //final item = approvalList[index];
-                  return PendingApprovalCard(
-                    title: 'Data Structure',
-                    unit: 'Unit 6',
-                    subtitle: 'CSE1203 . Sem 5 . Notes',
-                    category: 'Notes',
-                    author: 'Mushfiq',
-                    status: 'rejected',
-                    onPreview: () {},
-                    onApprove: () {
-                      setState(() {
-                        //   if (item.status == 'approved') {
-                        //     item.status = 'pending';
-                        //   } else {
-                        //     item.status = 'approved';
-                        //   }
-                      });
+              FutureBuilder(
+                future: getResourcesNeedsApproval(roomId: widget.roomId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text('No pending approvals.'));
+                  }
+                  return ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    itemCount: snapshot.data!.docs.length < 2
+                        ? snapshot.data!.docs.length
+                        : 2,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 16);
                     },
-                    onReject: () {
-                      setState(() {
-                        // if (item.status == 'rejected') {
-                        //   item.status = 'pending';
-                        // } else {
-                        //   item.status = 'rejected';
-                        // }
-                      });
+                    itemBuilder: (context, index) {
+                      Resource item = Resource.fromMap(
+                        snapshot.data!.docs[index].data()
+                            as Map<String, dynamic>,
+                      );
+                      return PendingApprovalCard(
+                        title: item.title,
+                        subtitle: item.description,
+                        category: item.category,
+                        author: item.authorName,
+                        status: item.approved ? 'approved' : 'pending',
+                        onPreview: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ResourceDetailsScreen(
+                                resource: item,
+                                resourceId: snapshot.data!.docs[index].id,
+                              ),
+                            ),
+                          );
+                        },
+                        onApprove: () async {
+                          await FirebaseFirestore.instance
+                              .collection('Resources')
+                              .doc(snapshot.data!.docs[index].id)
+                              .update({'Approved': true});
+                          setState(() {});
+                        },
+                        onReject: () async {
+                          await FirebaseFirestore.instance
+                              .collection('Resources')
+                              .doc(snapshot.data!.docs[index].id)
+                              .delete();
+                          setState(() {});
+                        },
+                      );
                     },
                   );
                 },
@@ -322,7 +347,8 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               method: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => PendingApprovalScreen(),
+                    builder: (context) =>
+                        PendingApprovalScreen(roomId: widget.roomId),
                   ),
                 );
               },
@@ -638,7 +664,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '14',
+                  widget.room.resources.length.toString(),
                   style: TextStyle(
                     fontSize: 40,
                     color: Color(0xff352E60),

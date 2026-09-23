@@ -1,56 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getRoomResources.dart';
+import 'package:notehive/Screens/resourceDetails.dart';
+import 'package:notehive/Structures/resourcesStructure.dart';
 import '../widgets/leadingbackButton.dart';
 
 class PendingApprovalScreen extends StatefulWidget {
-  PendingApprovalScreen({super.key});
+  final String roomId;
+  PendingApprovalScreen({super.key, required this.roomId});
 
   @override
   State<PendingApprovalScreen> createState() => _PendingApprovalScreenState();
 }
 
 class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
-  final List<_ApprovalItemData> approvalList = [
-    _ApprovalItemData(
-      title: 'Data Structure',
-      unit: 'Unit 4',
-      subtitle: 'CSE1203 . Sem 5 . Notes',
-      category: 'Notes',
-      author: 'Mushfiq',
-      status: 'pending',
-    ),
-    _ApprovalItemData(
-      title: 'Data Structure',
-      unit: 'Unit 5',
-      subtitle: 'CSE1203 . Sem 5 . Notes',
-      category: 'Notes',
-      author: 'Mushfiq',
-      status: 'pending',
-    ),
-    _ApprovalItemData(
-      title: 'Data Structure',
-      unit: 'Unit 6',
-      subtitle: 'CSE1203 . Sem 5 . Notes',
-      category: 'Notes',
-      author: 'Mushfiq',
-      status: 'pending',
-    ),
-    _ApprovalItemData(
-      title: 'Data Structure',
-      unit: 'Unit 6',
-      subtitle: 'CSE1203 . Sem 5 . Notes',
-      category: 'Notes',
-      author: 'Mushfiq',
-      status: 'approved',
-    ),
-    _ApprovalItemData(
-      title: 'Data Structure',
-      unit: 'Unit 6',
-      subtitle: 'CSE1203 . Sem 5 . Notes',
-      category: 'Notes',
-      author: 'Mushfiq',
-      status: 'rejected',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -70,39 +33,54 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
           ),
         ),
       ),
-      body: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        itemCount: approvalList.length,
-        separatorBuilder: (context, index) {
-          return SizedBox(height: 16);
-        },
-        itemBuilder: (context, index) {
-          final item = approvalList[index];
-          return PendingApprovalCard(
-            title: item.title,
-            unit: item.unit,
-            subtitle: item.subtitle,
-            category: item.category,
-            author: item.author,
-            status: item.status,
-            onPreview: () {},
-            onApprove: () {
-              setState(() {
-                if (item.status == 'approved') {
-                  item.status = 'pending';
-                } else {
-                  item.status = 'approved';
-                }
-              });
+      body: FutureBuilder(
+        future: getResourcesNeedsApproval(roomId: widget.roomId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No pending approvals.'));
+          }
+          return ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            itemCount: snapshot.data!.docs.length,
+            separatorBuilder: (context, index) {
+              return SizedBox(height: 16);
             },
-            onReject: () {
-              setState(() {
-                if (item.status == 'rejected') {
-                  item.status = 'pending';
-                } else {
-                  item.status = 'rejected';
-                }
-              });
+            itemBuilder: (context, index) {
+              Resource item = Resource.fromMap(
+                snapshot.data!.docs[index].data() as Map<String, dynamic>,
+              );
+              return PendingApprovalCard(
+                title: item.title,
+                subtitle: item.description,
+                category: item.category,
+                author: item.authorName,
+                status: item.approved ? 'approved' : 'pending',
+                onPreview: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResourceDetailsScreen(resource: item, resourceId: snapshot.data!.docs[index].id)));
+                },
+                onApprove: () async {
+                  await FirebaseFirestore.instance
+                      .collection('Resources')
+                      .doc(snapshot.data!.docs[index].id)
+                      .update({'Approved': true});
+                  setState(() {
+
+                  });
+                },
+                onReject: () async {
+                  await FirebaseFirestore.instance
+                      .collection('Resources')
+                      .doc(snapshot.data!.docs[index].id)
+                      .delete();
+                  setState(() {
+
+                  });
+                },
+              );
             },
           );
         },
@@ -132,7 +110,6 @@ class _ApprovalItemData {
 // Single Box / Card class for all approval items following project structure
 class PendingApprovalCard extends StatelessWidget {
   final String title;
-  final String unit;
   final String subtitle;
   final String category;
   final String author;
@@ -144,7 +121,6 @@ class PendingApprovalCard extends StatelessWidget {
   PendingApprovalCard({
     super.key,
     required this.title,
-    required this.unit,
     required this.subtitle,
     required this.category,
     required this.author,
@@ -178,16 +154,9 @@ class PendingApprovalCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Color(0xFF1A1730),
-                    width: 1.5,
-                  ),
+                  border: Border.all(color: Color(0xFF1A1730), width: 1.5),
                 ),
-                child: Icon(
-                  Icons.subject,
-                  color: Color(0xFF1A1730),
-                  size: 24,
-                ),
+                child: Icon(Icons.subject, color: Color(0xFF1A1730), size: 24),
               ),
               SizedBox(width: 14),
               Expanded(
@@ -206,15 +175,7 @@ class PendingApprovalCard extends StatelessWidget {
                               fontFamily: 'paragraph',
                             ),
                           ),
-                          TextSpan(
-                            text: ' - $unit',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF6B687E),
-                              fontFamily: 'paragraph',
-                            ),
-                          ),
+
                         ],
                       ),
                     ),
@@ -300,18 +261,12 @@ class PendingApprovalCard extends StatelessWidget {
               SizedBox(width: 8),
               Expanded(
                 flex: 4,
-                child: SizedBox(
-                  height: 42,
-                  child: _buildApproveButton(),
-                ),
+                child: SizedBox(height: 42, child: _buildApproveButton()),
               ),
               SizedBox(width: 8),
               Expanded(
                 flex: 4,
-                child: SizedBox(
-                  height: 42,
-                  child: _buildRejectButton(),
-                ),
+                child: SizedBox(height: 42, child: _buildRejectButton()),
               ),
             ],
           ),

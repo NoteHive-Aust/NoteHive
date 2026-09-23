@@ -6,6 +6,7 @@ Future<QuerySnapshot> getRoomResources({required String? roomId}) async {
   return await FirebaseFirestore.instance
       .collection('Resources')
       .where('RoomID', isEqualTo: roomId)
+      .where('Approved', isEqualTo: true)
       .get();
 }
 
@@ -24,6 +25,7 @@ Future<QuerySnapshot> getRoomResourcesFiltered({
       );
   return await FirebaseFirestore.instance
       .collection('Resources')
+      .where('Approved', isEqualTo: true)
       .where(
         FieldPath.documentId,
         whereIn: resourcesRef.map((ref) => ref.id).toList(),
@@ -37,5 +39,15 @@ Future<QuerySnapshot> getComments({required String resourceId}) {
       .collection('Resources')
       .doc(resourceId)
       .collection('Comments')
+      .get();
+}
+
+Future<QuerySnapshot> getResourcesNeedsApproval({
+  required String? roomId,
+}) async {
+  return await FirebaseFirestore.instance
+      .collection('Resources')
+      .where('RoomID', isEqualTo: roomId)
+      .where('Approved', isEqualTo: false)
       .get();
 }

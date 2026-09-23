@@ -17,7 +17,6 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final nameController = TextEditingController();
-  final emailController = TextEditingController();
   final institutionController = TextEditingController();
 
   File? pickedImage;
@@ -38,14 +37,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   initState() {
     super.initState();
     nameController.text = widget.user?.name ?? '';
-    emailController.text = widget.user?.email ?? '';
+
     institutionController.text = widget.user?.schoolName ?? '';
   }
 
   @override
   void dispose() {
     nameController.dispose();
-    emailController.dispose();
+
     institutionController.dispose();
     super.dispose();
   }
@@ -63,7 +62,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     await FirebaseFirestore.instance.collection('Users').doc(uid).update({
       'Name': nameController.text.trim(),
-      'Email': emailController.text.trim(),
       'SchoolName': institutionController.text.trim(),
       'ProfileImage': profileImageUrl.isNotEmpty
           ? profileImageUrl
@@ -104,10 +102,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 SizedBox(height: 8),
                 nameField(),
                 SizedBox(height: 20),
-                label('Email'),
-                SizedBox(height: 8),
-                emailField(),
-                SizedBox(height: 20),
 
                 label('Institution/ University'),
                 SizedBox(height: 8),
@@ -134,17 +128,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget emailField() {
-    return TextFormField(
-      controller: emailController,
-      decoration: InputDecoration(
-        hintText: 'Enter your email here',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      keyboardType: TextInputType.emailAddress,
-    );
-  }
+
+
 
   Widget institutionField() {
     return TextFormField(
