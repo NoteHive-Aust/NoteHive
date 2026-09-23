@@ -1,9 +1,12 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:notehive/Screens/resourceUpload.dart';
 
 SizedBox floatingUploadButton({
   required BuildContext context,
   required String roomId,
+  required bool isAdmin,
 }) {
   return SizedBox(
     height: 70,
@@ -15,7 +18,7 @@ SizedBox floatingUploadButton({
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: ((context) => ResourceUploadScreen(roomId: roomId)),
+            builder: ((context) => ResourceUploadScreen(roomId: roomId,isAdmin:isAdmin,)),
           ),
         );
       },

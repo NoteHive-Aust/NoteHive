@@ -45,7 +45,7 @@ ListTile ResourcesListTile({required BuildContext context,required Resource reso
             ),
             SizedBox(width: 5),
             Text(
-              'By Mushfiq',
+              'By ${resource.authorName}',
               style: TextStyle(
                 fontSize: 12,
                 color: Color(0xff352E60),

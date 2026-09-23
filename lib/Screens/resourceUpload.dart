@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/auth_services.dart';
 import 'package:notehive/FirebaseOperations/firebase_storage_services.dart';
@@ -9,8 +10,13 @@ import 'dart:typed_data';
 
 class ResourceUploadScreen extends StatefulWidget {
   final String roomId;
+  final bool isAdmin;
 
-  const ResourceUploadScreen({super.key, required this.roomId});
+  const ResourceUploadScreen({
+    super.key,
+    required this.roomId,
+    required this.isAdmin,
+  });
 
   @override
   State<ResourceUploadScreen> createState() => ResourceUploadScreenState();
@@ -49,9 +55,9 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error selecting file: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error selecting file: $e')));
       }
     }
   }
@@ -93,8 +99,9 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
           .doc(uid)
           .get();
 
-      final model.User currentUser =
-          model.User.fromMap(userSnap.data() as Map<String, dynamic>);
+      final model.User currentUser = model.User.fromMap(
+        userSnap.data() as Map<String, dynamic>,
+      );
 
       final String? downloadUrl = await FirebaseStorageService.instance
           .uploadFile(fileBytes, fileName);
@@ -115,24 +122,34 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
       final DocumentReference resourceRef = await FirebaseFirestore.instance
           .collection('Resources')
           .add({
-        'RoomID': widget.roomId,
-        'Title': titleController.text.trim(),
-        'Category': selectedCategory,
-        'Description': descriptionController.text.trim(),
-        'ResourceUrl': downloadUrl,
-        'AuthorName': currentUser.name,
-        'AuthorSchoolName': currentUser.schoolName,
-        'Downloads': 0,
-        'Veiws': 0,
-        'time': FieldValue.serverTimestamp(),
-      });
+            'Approved': widget.isAdmin ? true : false,
+            'RoomID': widget.roomId,
+            'Title': titleController.text.trim(),
+            'Category': selectedCategory,
+            'Description': descriptionController.text.trim(),
+            'ResourceUrl': downloadUrl,
+            'AuthorName': currentUser.name,
+            'AuthorSchoolName': currentUser.schoolName,
+            'Downloads': 0,
+            'Veiws': 0,
+            'time': FieldValue.serverTimestamp(),
+          });
 
       await FirebaseFirestore.instance
           .collection('Rooms')
           .doc(widget.roomId)
           .update({
-        'Resources': FieldValue.arrayUnion([resourceRef]),
-      });
+            'Resources': FieldValue.arrayUnion([resourceRef]),
+            'PendingApprovals': widget.isAdmin
+                ? null
+                : FieldValue.arrayUnion([resourceRef]),
+          });
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .update({
+            'MyUploads': FieldValue.arrayUnion([resourceRef]),
+          });
 
       setState(() => isUploading = false);
 
@@ -149,10 +166,7 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
       setState(() => isUploading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -312,10 +326,7 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
               value: category,
               child: Text(
                 category,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF1A1730),
-                ),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF1A1730)),
               ),
             );
           }).toList(),
@@ -336,9 +347,7 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF352E60).withOpacity(0.1),
-        ),
+        border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: TextField(
         controller: descriptionController,
@@ -440,9 +449,7 @@ class ResourceUploadScreenState extends State<ResourceUploadScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF352E60).withOpacity(0.1),
-        ),
+        border: Border.all(color: const Color(0xFF352E60).withOpacity(0.1)),
       ),
       child: Row(
         children: [
