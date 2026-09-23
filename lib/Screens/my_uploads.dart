@@ -1,4 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/auth_services.dart';
+import 'package:notehive/FirebaseOperations/getMyUploads.dart';
+import 'package:notehive/Screens/resourceDetails.dart';
+import 'package:notehive/Structures/resourcesStructure.dart';
 import '../widgets/cards.dart';
 
 class MyUploads extends StatefulWidget {
@@ -11,21 +16,51 @@ class MyUploads extends StatefulWidget {
 class _MyUploadsState extends State<MyUploads> {
   @override
   Widget build(BuildContext context) {
+    String uid = AuthServices.instance.uid;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: appBar(),
       body: SafeArea(
-        child: ListView.separated(
-          padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
-          itemCount: 10,
-          separatorBuilder: (context, index) {
-            return SizedBox(height: 10);
-          },
-          itemBuilder: (context, index) {
-            return MyUploadsCard(
-              title: 'DS Question Bank',
-              subtitle: 'CSE 2103. Fall2025. Question Bank',
-              method: () {},
+        child: FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
+          future: getMyUploads(uid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No uploads found.'));
+            }
+            var docs = snapshot.data!.reversed.toList();
+            return ListView.separated(
+              padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
+              itemCount: docs.length,
+              separatorBuilder: (context, index) {
+                return SizedBox(height: 10);
+              },
+              itemBuilder: (context, index) {
+                var data = docs[index].data()!;
+                return MyUploadsCard(
+                  title: data['Title'] ?? '',
+                  subtitle: data['Description'] != null &&
+                          data['Description'].toString().isNotEmpty
+                      ? data['Description']
+                      : (data['Category'] ?? ''),
+                  method: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ResourceDetailsScreen(
+                          resource: Resource.fromMap(data),
+                          resourceId: docs[index].id,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             );
           },
         ),
@@ -62,5 +97,4 @@ class _MyUploadsState extends State<MyUploads> {
       ),
     );
   }
-
 }

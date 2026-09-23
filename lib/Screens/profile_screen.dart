@@ -2,12 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/auth_services.dart';
 import 'package:notehive/FirebaseOperations/getMyRooms.dart';
+import 'package:notehive/FirebaseOperations/getMyUploads.dart';
 import 'package:notehive/FirebaseOperations/getUserProfile.dart';
 import 'package:notehive/Screens/RoomScreen_adminOrMod.dart';
 import 'package:notehive/Screens/pageController.dart';
 import 'package:notehive/Screens/my_uploads.dart';
 import 'package:notehive/Screens/notifications_screen.dart';
+import 'package:notehive/Screens/resourceDetails.dart';
 import 'package:notehive/Screens/roomScreen.dart';
+import 'package:notehive/Structures/resourcesStructure.dart';
 import 'package:notehive/Structures/roomStructure.dart';
 import 'package:notehive/Structures/userStructure.dart';
 import '../widgets/cards.dart';
@@ -158,18 +161,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   SizedBox(height: 20),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: 3,
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 10);
-                    },
-                    itemBuilder: (context, index) {
-                      return MyUploadsCard(
-                        title: 'DS Question Bank',
-                        subtitle: 'CSE 2103. Fall2025. Question Bank',
-                        method: () {},
+                  FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
+                    future: getMyUploads(uid),
+                    builder: (context, uploadSnapshot) {
+                      if (uploadSnapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (uploadSnapshot.hasError || !uploadSnapshot.hasData) {
+                        return SizedBox();
+                      }
+                      var docs = uploadSnapshot.data!.reversed.take(3).toList();
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: docs.length,
+                        separatorBuilder: (context, index) {
+                          return SizedBox(height: 10);
+                        },
+                        itemBuilder: (context, index) {
+                          var uploadData = docs[index].data()!;
+                          return MyUploadsCard(
+                            title: uploadData['Title'] ?? '',
+                            subtitle: uploadData['Description'] != null &&
+                                    uploadData['Description'].toString().isNotEmpty
+                                ? uploadData['Description']
+                                : (uploadData['Category'] ?? ''),
+                            method: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ResourceDetailsScreen(
+                                    resource: Resource.fromMap(uploadData),
+                                    resourceId: docs[index].id,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       );
                     },
                   ),
