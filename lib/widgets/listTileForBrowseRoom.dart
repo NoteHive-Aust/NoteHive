@@ -78,7 +78,11 @@ Container listTileforBrowseRoom({
               MaterialPageRoute(builder: (context) => Joinroom()),
             );
           } else {
-
+            FirebaseFirestore.instance.collection('Users').doc(uid).update({
+              'MemberAt': FieldValue.arrayUnion([
+                FirebaseFirestore.instance.doc('Rooms/${room.id}'),
+              ]),
+            });
             FirebaseFirestore.instance
                 .collection('Rooms')
                 .doc(room.id)
