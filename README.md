@@ -10,10 +10,7 @@ A Flutter-based academic resource sharing platform where students can join class
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
-- [Firebase Setup](#firebase-setup)
-- [Getting Started](#getting-started)
-- [User Roles](#user-roles)
-- [Firestore Data Model](#firestore-data-model)
+
 
 ---
 
@@ -139,11 +136,9 @@ lib/
     └── pop_up.dart
 ```
 
----
 
 
 
 
----
 
 
