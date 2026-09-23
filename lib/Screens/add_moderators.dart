@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:notehive/FirebaseOperations/manageModerators.dart';
-import 'package:notehive/Screens/members.dart';
 import '../widgets/leadingbackButton.dart';
 
 class AddModeratorsScreen extends StatefulWidget {
@@ -377,39 +376,6 @@ class _AddModeratorsScreenState extends State<AddModeratorsScreen> {
                                 );
                               }),
                             ),
-                    ),
-                    SizedBox(height: 20),
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MembersScreen(),
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        width: double.infinity,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Color(0xFF352E60).withOpacity(0.12),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Show All members',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1A1730),
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                     SizedBox(height: 20),
                   ],
