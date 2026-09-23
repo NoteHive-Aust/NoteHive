@@ -745,7 +745,10 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RoomSettings()),
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RoomSettings(roomId: widget.roomId),
+                    ),
                   );
                 },
                 icon: Icon(Icons.edit_note),
