@@ -49,7 +49,12 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: isModeratorUpload
-          ? floatingUploadButton(context: context, roomId: widget.roomId,isAdmin: false,categories: widget.room.categories)
+          ? floatingUploadButton(
+              context: context,
+              roomId: widget.roomId,
+              isAdmin: false,
+              categories: widget.room.categories,
+            )
           : null,
       appBar: AppBar(
         leadingWidth: 70,
@@ -101,6 +106,16 @@ class _RoomScreenState extends State<RoomScreen> {
                       ),
                       TextButton(
                         onPressed: () async {
+                          await FirebaseFirestore.instance
+                              .collection('Users')
+                              .doc(uid)
+                              .update({
+                                'MemberAt': FieldValue.arrayRemove([
+                                  FirebaseFirestore.instance
+                                      .collection('Rooms')
+                                      .doc(widget.roomId),
+                                ]),
+                              });
                           await FirebaseFirestore.instance
                               .collection('Rooms')
                               .doc(widget.roomId)

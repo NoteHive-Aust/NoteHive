@@ -66,7 +66,8 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
       floatingActionButton: floatingUploadButton(
         context: context,
         roomId: widget.roomId,
-        isAdmin: true, categories: widget.room.categories,
+        isAdmin: true,
+        categories: widget.room.categories,
       ),
       endDrawer: DrawerWidget(context),
       appBar: AppbarWidget(context),
@@ -316,10 +317,12 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
             DrawerWidgets(
               method: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => MembersScreen(
-                    roomId: widget.roomId,
-                    currentUserUid: widget.uid,
-                  )),
+                  MaterialPageRoute(
+                    builder: (context) => MembersScreen(
+                      roomId: widget.roomId,
+                      currentUserUid: widget.uid,
+                    ),
+                  ),
                 );
               },
               text: 'Members',
@@ -384,6 +387,16 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                         TextButton(
                           child: Text(isAdmin ? 'Delete' : 'Leave'),
                           onPressed: () async {
+                            await FirebaseFirestore.instance
+                                .collection('Users')
+                                .doc(widget.uid)
+                                .update({
+                                  'MemberAt': FieldValue.arrayRemove([
+                                    FirebaseFirestore.instance
+                                        .collection('Rooms')
+                                        .doc(widget.roomId),
+                                  ]),
+                                });
                             await FirebaseFirestore.instance
                                 .collection('Rooms')
                                 .doc(widget.roomId)
@@ -459,9 +472,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
     return Expanded(
       child: InkWell(
         onTap: () {
-          Navigator.of(
-            context,
-          ).push(
+          Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ModeratorsScreen(roomId: widget.roomId),
             ),
@@ -746,8 +757,7 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          RoomSettings(roomId: widget.roomId),
+                      builder: (context) => RoomSettings(roomId: widget.roomId),
                     ),
                   );
                 },
