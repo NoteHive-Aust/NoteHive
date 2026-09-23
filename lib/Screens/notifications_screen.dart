@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:notehive/FirebaseOperations/getNotifications.dart';
 import '../widgets/cards.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -9,23 +11,58 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  String getTimeAgo(DateTime time) {
+    Duration diff = DateTime.now().difference(time);
+    if (diff.inDays >= 1) {
+      return '${diff.inDays}d ago';
+    } else if (diff.inHours >= 1) {
+      return '${diff.inHours}h ago';
+    } else if (diff.inMinutes >= 1) {
+      return '${diff.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(),
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView.separated(
-          padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
-          itemCount: 10,
-          separatorBuilder: (context, index) {
-            return SizedBox(
-              height: 15,
+        child: FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
+          future: getNotifications(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No notifications found.'));
+            }
+            var docs = snapshot.data!;
+            return ListView.separated(
+              padding: EdgeInsets.only(top: 45, bottom: 100, left: 20, right: 20),
+              itemCount: docs.length,
+              separatorBuilder: (context, index) {
+                return SizedBox(
+                  height: 15,
+                );
+              },
+              itemBuilder: (context, index) {
+                var data = docs[index].data()!;
+                DateTime uploadTime = (data['UploadTime'] is Timestamp)
+                    ? (data['UploadTime'] as Timestamp).toDate()
+                    : DateTime.now();
+                return NotificationsCard(
+                  title: data['Content'] ?? '',
+                  subtitle: data['RoomName'] ?? '',
+                  time: getTimeAgo(uploadTime),
+                );
+              },
             );
-          },
-          itemBuilder: (context, index) {
-            return NotificationsCard(title: 'Mid term timetable has just been posted. Check the announcements.',
-            subtitle: 'CSE 2103', time: '1h ago');
           },
         ),
       ),

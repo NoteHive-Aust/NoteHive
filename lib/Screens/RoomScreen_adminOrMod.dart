@@ -331,7 +331,8 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
                     method: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ModeratorsScreen(),
+                          builder: (context) =>
+                              ModeratorsScreen(roomId: widget.roomId),
                         ),
                       );
                     },
@@ -460,7 +461,11 @@ class _RoomScreenAdminOrModState extends State<RoomScreenAdminOrMod> {
         onTap: () {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (context) => ModeratorsScreen()));
+          ).push(
+            MaterialPageRoute(
+              builder: (context) => ModeratorsScreen(roomId: widget.roomId),
+            ),
+          );
         },
         child: Container(
           decoration: BoxDecoration(
