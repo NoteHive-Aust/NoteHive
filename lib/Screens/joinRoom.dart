@@ -99,6 +99,9 @@ class _JoinroomState extends State<Joinroom> {
                             if (querySnapshot.docs.isNotEmpty) {
                               if (querySnapshot.docs.first.data()['RoomCode'] ==
                                   roomCode) {
+                                FirebaseFirestore.instance.collection('Users').doc(uid).update(
+                                  {'MemberAt': FieldValue.arrayUnion([FirebaseFirestore.instance.doc('Rooms/${querySnapshot.docs.first.id}')])}
+                                );
                                 querySnapshot.docs.first.reference
                                     .update({
                                       'Members': FieldValue.arrayUnion([
