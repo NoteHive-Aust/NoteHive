@@ -22,7 +22,6 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   TextEditingController roomNameController = TextEditingController();
   TextEditingController institutionController = TextEditingController();
 
-
   String? selectedDepartment;
   String? selectedBatchYear;
 
@@ -82,6 +81,11 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
       pendingApprovals: [],
       onlyModeratorUpload: onlyModeratorUpload,
     );
+    FirebaseFirestore.instance.collection('Users').doc(uid).update({
+      'MemberAt': FieldValue.arrayUnion([
+        FirebaseFirestore.instance.doc('Rooms/${roomRef.id}'),
+      ]),
+    });
     await roomRef.set(newRoom.toMap());
     await roomRef.update({
       'Members': FieldValue.arrayUnion([
@@ -312,7 +316,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                           builder: (context) => RoomScreenAdminOrMod(
                             room: newRoom,
                             uid: uid,
-                            roomId:value.id,
+                            roomId: value.id,
                           ),
                         ),
                       );
